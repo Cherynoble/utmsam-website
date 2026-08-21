@@ -1,0 +1,17 @@
+---
+import { toSvg } from '../lib/pixel.js';
+import { icons, mark } from '../lib/icons.js';
+
+const { name, size = 48, label = '', decorative = false, class: klass = '' } = Astro.props;
+const bitmap = name === 'mark' ? mark : icons[name];
+if (!bitmap) throw new Error(`PixelIcon: no icon named "${name}"`);
+
+const svg = toSvg(name, bitmap, {
+  size,
+  label,
+  decorative: decorative || !label,
+  maxColours: name === 'mark' ? 6 : 4,
+  className: `pixel-icon ${klass}`.trim(),
+});
+---
+<Fragment set:html={svg} />

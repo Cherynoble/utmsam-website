@@ -1,0 +1,6 @@
+---
+const { height = 8, class: klass = '' } = Astro.props;
+---
+<div class={`block-strip ${klass}`} style={`height:${height}px`} aria-hidden="true">
+  <i></i><i></i><i></i><i></i><i></i><i></i>
+</div>

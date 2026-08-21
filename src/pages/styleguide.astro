@@ -1,0 +1,26 @@
+---
+import { icons } from '../lib/icons.js';
+import PixelIcon from '../components/PixelIcon.astro';
+import BlockStrip from '../components/BlockStrip.astro';
+import '../styles/global.css';
+const names = ['mark', ...Object.keys(icons)];
+---
+<html lang="en"><head><meta charset="utf-8"><title>Icon preview</title></head>
+<body>
+  <div class="container" style="padding-block:48px">
+    <h2>Icon set.</h2>
+    <BlockStrip />
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:24px;margin-top:32px">
+      {names.map(n => (
+        <div style="background:var(--cream);padding:16px;text-align:center">
+          <div style="display:flex;justify-content:center;align-items:flex-end;gap:12px;min-height:128px">
+            <PixelIcon name={n} size={112} label={n} />
+            <PixelIcon name={n} size={32} label="" decorative />
+            <PixelIcon name={n} size={16} label="" decorative />
+          </div>
+          <p class="mono" style="margin-top:12px">{n}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</body></html>

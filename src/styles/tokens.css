@@ -1,0 +1,107 @@
+/* ============================================================
+   UTMSAM design tokens
+   Warm-flat system. Light-locked by design: there is no dark
+   mode, deliberately. See DESIGN.md "No dark mode".
+   ============================================================ */
+
+:root {
+  /* --- Surfaces. Never pure white. --------------------------- */
+  --warm-ivory:   #fffaeb;   /* page background, the foundation canvas */
+  --cream:        #fff0c2;   /* raised surface, secondary button */
+  --white:        #ffffff;   /* popovers and max-contrast moments only */
+
+  /* --- Ink. Never pure black, never gray. -------------------- */
+  --ink:          #1f1f1f;   /* body text, primary button fill */
+  --ink-muted:    #3d3d3d;   /* secondary text. Still 10:1+, not a soft gray. */
+
+  /* --- The block ramp. Material, not signal. ------------------
+     Ordered light to dark. Used for blocks, icons, and the
+     gradient strip. Only --accent carries meaning.             */
+  --ramp-1:       #ffd21f;   /* bright yellow  */
+  --ramp-2:       #ffb02e;   /* gold           */
+  --ramp-3:       #ffa110;   /* amber          */
+  --ramp-4:       #f9871a;   /* orange         */
+  --ramp-5:       #ef6a1e;   /* flame          */
+  --ramp-6:       #c62c15;   /* ember = accent */
+
+  /* --- Accent. Exactly one. ----------------------------------
+     #c62c15 clears 5.34:1 on ivory and 5.57:1 under white text,
+     so unlike the system this is modelled on, the accent is
+     safe as small text as well as fill. Still prefer fill.     */
+  --accent:        var(--ramp-6);
+  --accent-on:     #ffffff;
+  --accent-hover:  var(--ramp-5);   /* hover traverses UP the ramp, never lighten() */
+  --accent-active: #a32410;
+
+  /* --- Institutional secondary. NOT a UI accent. -------------
+     Reserved for UofT / UTM affiliation and faculty content,
+     mirroring how the source system reserves blue for a
+     product line. Never use it on a button or a link.          */
+  --institution:  #002a5c;
+
+  /* --- Borders ---------------------------------------------- */
+  --border:       #f0e8c8;   /* warm, barely there */
+  --border-ink:   #1f1f1f;
+
+  /* --- Type -------------------------------------------------- */
+  --font-body:    Arial, ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+
+  --text-xs:      12px;
+  --text-sm:      14px;
+  --text-base:    16px;
+  --text-lg:      24px;
+  --text-xl:      32px;
+  --text-2xl:     48px;
+  --text-3xl:     56px;
+  --text-4xl:     82px;
+
+  /* Leading inverts with size. This is what gives headings
+     their stacked, poster-block density.                       */
+  --leading-body:   1.5;
+  --leading-lg:     1.33;
+  --leading-xl:     1.15;
+  --leading-2xl:    0.95;
+  --leading-tight:  1.0;
+  --tracking-display: -0.025em;
+
+  /* --- Space. 8px base. -------------------------------------- */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px;  --space-6: 24px;  --space-8: 32px;  --space-12: 48px;
+  --space-16: 64px;
+
+  --section-y: 80px;
+  --container-max: 1280px;
+  --gutter: 24px;
+  --nav-height: 68px;
+
+  /* --- Radius. Effectively zero. No pills, ever. ------------- */
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 4px;
+
+  /* --- Elevation. Two levels only: flat, or golden-float. ----
+     Amber-tinted, negative X offset, so the light source sits
+     up-and-to-the-right on every raised element. A black
+     shadow on cream goes muddy; an amber one reads as sun.     */
+  --elev-flat: none;
+  --elev-ring: 0 0 0 1px var(--border);
+  --elev-raised:
+    -8px   16px  39px  rgba(127, 99, 21, 0.12),
+    -33px  64px  72px  rgba(127, 99, 21, 0.10),
+    -73px  144px 97px  rgba(127, 99, 21, 0.06);
+
+  --focus-ring: 0 0 0 3px rgba(198, 44, 21, 0.35);
+
+  /* --- Motion. Two durations, one curve. That is the system. - */
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (max-width: 1024px) {
+  :root { --section-y: 48px; --gutter: 16px; }
+}
+@media (max-width: 640px) {
+  :root { --section-y: 32px; --gutter: 12px; --nav-height: 60px; }
+}
