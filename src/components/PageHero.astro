@@ -1,0 +1,28 @@
+---
+import BlockStrip from './BlockStrip.astro';
+const { title, lede, lines = [] } = Astro.props;
+---
+<section class="page-hero">
+  <div class="container">
+    <h1>
+      {lines.length > 0 ? (
+        <>
+          <span class="visually-hidden">{title}</span>
+          {lines.map((l, i) => (
+            <span class="hero-line" aria-hidden="true" style={`--i:${i}`}><span>{l}</span></span>
+          ))}
+        </>
+      ) : title}
+    </h1>
+    {lede && <p class="lede page-hero__lede">{lede}</p>}
+  </div>
+</section>
+<BlockStrip />
+
+<style>
+  .page-hero { padding-block: var(--space-12) var(--section-y); }
+  /* Wide enough that each declared line stays one line. A 16ch cap re-wraps
+     the spans and turns a two-line headline into four. */
+  .page-hero h1 { max-width: 21ch; }
+  .page-hero__lede { margin-top: var(--space-6); max-width: 46ch; }
+</style>

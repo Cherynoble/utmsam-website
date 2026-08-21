@@ -40,11 +40,24 @@ const [lead, ...rest] = news;
   <section class="section container">
     <h2 class="marker">Recent</h2>
     <div class="news">
-      <a class="card news__lead" href={lead.href ?? undefined} aria-disabled={!lead.href}>
-        <span class="mono news__meta">{lead.meta}</span>
-        <h3>{lead.title}</h3>
-        <span class="path">{lead.path}</span>
-      </a>
+      {/* Renders as a plain element until there is somewhere to go. An <a>
+          with no href still takes hover styling, which promises a click that
+          does not happen. */}
+      <Fragment>
+        {lead.href ? (
+          <a class="card news__lead" href={lead.href}>
+            <span class="mono news__meta">{lead.meta}</span>
+            <h3>{lead.title}</h3>
+            <span class="path">{lead.path}</span>
+          </a>
+        ) : (
+          <div class="card news__lead">
+            <span class="mono news__meta">{lead.meta}</span>
+            <h3>{lead.title}</h3>
+            <span class="path">{lead.path}</span>
+          </div>
+        )}
+      </Fragment>
       <div class="news__rest">
         {rest.map(n => (
           <a class="card" href={`${base}${n.href}`}>

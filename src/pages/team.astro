@@ -1,0 +1,116 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import FinalCta from '../components/FinalCta.astro';
+import BlockPortrait from '../components/BlockPortrait.astro';
+import { faculty, executive, openRoles } from '../data/team.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<Base
+  title="Team"
+  description="The executive team and faculty advisors of the UTM Algorithmic Modeling Society."
+>
+  <PageHero
+    title="Who runs this."
+    lines={['Who runs this.']}
+    lede="The society is run by an elected executive team, with faculty advisors supervising project work."
+  />
+
+  <section class="section container">
+    <h2 class="marker">Faculty advisors</h2>
+    <ul class="roster roster--faculty">
+      {faculty.map(m => (
+        <li class="member">
+          <div class="member__portrait">
+            {m.photo
+              ? <img src={`${base}${m.photo}`} alt="" width="640" height="640" loading="lazy" />
+              : <BlockPortrait seed={m.name ?? m.role} />}
+          </div>
+          <p class="member__name">{m.name}</p>
+          <p class="member__role">{m.role}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="section container">
+    <h2>The executive team.</h2>
+    <p class="body exec__note">
+      Positions for the incoming year are being confirmed. The roles below are
+      the structure of the team; names go up as each is filled.
+    </p>
+    <ul class="roster">
+      {executive.map(m => (
+        <li class="member">
+          <div class="member__portrait">
+            {m.photo
+              ? <img src={`${base}${m.photo}`} alt="" width="640" height="640" loading="lazy" />
+              : <BlockPortrait seed={m.role} />}
+          </div>
+          <p class="member__name">
+            {m.name ?? <span class="member__pending">To be announced</span>}
+          </p>
+          <p class="member__role">{m.role}</p>
+          {m.program && <p class="member__program">{m.program}</p>}
+          {m.focus && <p class="member__focus">{m.focus}</p>}
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  {openRoles.length > 0 && (
+    <section class="open">
+      <div class="container">
+        <h2 class="open__heading">Roles we are looking to fill.</h2>
+        <ul class="open__list">
+          {openRoles.map(r => (
+            <li class="open__item">
+              <h3 class="open__role">{r.role}</h3>
+              <p class="body">{r.focus}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <FinalCta
+    heading="Run for a position."
+    body="Elections happen at the end of each academic year, and directorships open through the term."
+  />
+</Base>
+
+<style>
+  .roster {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-12) var(--space-8);
+    margin-top: var(--space-8);
+  }
+  .roster--faculty { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .member__portrait { margin-bottom: var(--space-4); box-shadow: var(--elev-ring); }
+  .member__portrait img { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; display: block; }
+
+  .member__name { font-size: var(--text-lg); line-height: var(--leading-lg); }
+  .member__pending { color: var(--ink-muted); }
+  .member__role { color: var(--accent); margin-top: var(--space-1); }
+  .member__program { color: var(--ink-muted); font-size: var(--text-sm); margin-top: var(--space-1); }
+  .member__focus { color: var(--ink-muted); margin-top: var(--space-3); max-width: 34ch; }
+
+  .exec__note { margin-top: var(--space-4); }
+
+  .open { background: var(--cream); padding-block: var(--section-y); }
+  .open__heading { max-width: 20ch; }
+  .open__list { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-8); margin-top: var(--space-8); }
+  .open__item { border-top: 1px solid var(--border); padding-top: var(--space-4); }
+  .open__role { font-size: var(--text-lg); line-height: var(--leading-lg); margin-bottom: var(--space-2); }
+
+  @media (max-width: 900px) {
+    .roster, .roster--faculty, .open__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 560px) {
+    .roster, .roster--faculty, .open__list { grid-template-columns: 1fr; }
+  }
+</style>

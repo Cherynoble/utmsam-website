@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import PixelIcon from '../components/PixelIcon.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<Base title="Page not found" description="That page does not exist.">
+  <section class="section container notfound">
+    <PixelIcon name="d-model" size={96} decorative />
+    <h1 class="notfound__heading">No page at this address.</h1>
+    <p class="lede">The link may be out of date, or the page may have moved in the rebuild.</p>
+    <div class="notfound__actions">
+      <a href={`${base}/`} class="btn btn--primary">Go to the homepage</a>
+      <a href={`${base}/events`} class="btn btn--cream">See what is running</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .notfound { display: grid; gap: var(--space-5); justify-items: start; padding-block: var(--section-y); }
+  .notfound__heading { max-width: 18ch; }
+  .notfound__actions { display: flex; gap: var(--space-3); margin-top: var(--space-4); flex-wrap: wrap; }
+</style>

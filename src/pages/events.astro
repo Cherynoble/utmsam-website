@@ -1,0 +1,99 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import FinalCta from '../components/FinalCta.astro';
+import PixelIcon from '../components/PixelIcon.astro';
+import { events } from '../data/content.js';
+---
+<Base
+  title="Events"
+  description="Workshops, competitions, and build sessions run by UTMSAM through the term."
+>
+  <PageHero
+    title="What is running."
+    lines={['What is running.']}
+    lede="Everything here is open to any UTM student. Sessions are self-contained, so joining part way through a series costs nothing."
+  />
+
+  <section class="section container">
+    <h2 class="visually-hidden">Current programming</h2>
+    <ul class="events">
+      {events.map(e => (
+        <li class="events__row" id={e.id}>
+          <div class="events__icon"><PixelIcon name={e.icon} size={48} decorative /></div>
+          <div class="events__main">
+            <h3 class="events__name">{e.name}</h3>
+            <p class="body events__body">{e.body}</p>
+          </div>
+          <dl class="events__meta">
+            <div>
+              <dt class="marker">Cadence</dt>
+              <dd>{e.cadence}</dd>
+            </div>
+            <div>
+              <dt class="marker">Status</dt>
+              <dd class={e.status === 'Running' ? 'events__status is-live' : 'events__status'}>{e.status}</dd>
+            </div>
+          </dl>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="section--tight container">
+    <div class="notice">
+      <h2 class="notice__heading">Dates go out on Discord and Instagram.</h2>
+      <p class="body">
+        Session times shift with room availability, so the schedule lives where
+        it can be corrected quickly rather than on this page.
+      </p>
+    </div>
+  </section>
+
+  <FinalCta
+    heading="Pick one and turn up."
+    body="No sign-up needed for a single session. The form is only so we can tell you when things move."
+  />
+</Base>
+
+<style>
+  .events { list-style: none; display: grid; }
+  .events__row {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) 200px;
+    gap: var(--space-8);
+    align-items: start;
+    padding-block: var(--space-8);
+    border-top: 1px solid var(--border);
+  }
+  .events__row:last-child { border-bottom: 1px solid var(--border); }
+  .events__name { font-size: var(--text-xl); line-height: var(--leading-xl); margin-bottom: var(--space-3); }
+  .events__body { max-width: 58ch; }
+
+  .events__meta { display: grid; gap: var(--space-5); }
+  .events__meta dd { margin-top: var(--space-1); }
+
+  /* The status word carries the state. No coloured dot: the label is the
+     signal, and a dot would be decoration pretending to be information. */
+  .events__status.is-live { color: var(--accent); }
+
+  .notice {
+    background: var(--cream);
+    padding: var(--space-12);
+    display: grid;
+    gap: var(--space-4);
+  }
+  .notice__heading { max-width: 22ch; }
+  .notice .body { max-width: 54ch; }
+
+  @media (max-width: 900px) {
+    .events__row { grid-template-columns: 48px minmax(0, 1fr); gap: var(--space-5); }
+    .events__meta {
+      grid-column: 1 / -1;
+      grid-auto-flow: column;
+      justify-content: start;
+      gap: var(--space-12);
+    }
+    .notice { padding: var(--space-6); }
+  }
+</style>

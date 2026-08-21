@@ -124,14 +124,17 @@ function mulberry32(a) {
   };
 }
 
-export function blockPortrait(seed, grid = 8) {
+export function blockPortrait(seed, grid = 12) {
   let h = 2166136261;
   for (let i = 0; i < seed.length; i++) {
     h ^= seed.charCodeAt(i);
     h = Math.imul(h, 16777619);
   }
   const rand = mulberry32(h);
-  const keys = ['6', '5', '4', '3'];
+  // The light end of the ramp only. A placeholder should sit quietly behind
+  // the text it stands in for, and the page should gain contrast when real
+  // photographs replace these rather than lose it.
+  const keys = ['8', '7', '6', '5'];
   const half = Math.ceil(grid / 2);
   const rows = [];
   for (let y = 0; y < grid; y++) {
@@ -139,7 +142,7 @@ export function blockPortrait(seed, grid = 8) {
     for (let x = 0; x < half; x++) {
       // Denser toward the vertical centre so the mosaic reads as a mass
       // rather than as noise.
-      const bias = 0.34 + 0.34 * (1 - Math.abs(y - grid / 2) / (grid / 2));
+      const bias = 0.30 + 0.30 * (1 - Math.abs(y - grid / 2) / (grid / 2));
       left.push(rand() < bias ? keys[Math.floor(rand() * keys.length)] : '.');
     }
     const right = [...left].reverse().slice(grid % 2 ? 1 : 0);

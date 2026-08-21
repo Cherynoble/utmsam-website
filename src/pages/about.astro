@@ -1,0 +1,107 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import FinalCta from '../components/FinalCta.astro';
+import PixelIcon from '../components/PixelIcon.astro';
+import { site } from '../data/site.js';
+
+const principles = [
+  { title: 'Rigor.',        body: 'A result that has not been checked is not a result. Project teams review each other before anything leaves the society.' },
+  { title: 'Openness.',     body: 'Work is published where students can read it, including the work that did not go the way anyone hoped.' },
+  { title: 'Patience.',     body: 'Nobody arrives knowing this. Sessions are built for the person who has not seen the material before.' },
+  { title: 'No gatekeeping.', body: 'No application, no interview, no prerequisite courses. Program and year do not matter.' },
+];
+---
+<Base
+  title="About"
+  description="UTMSAM is a student-run society at the University of Toronto Mississauga applying machine learning, data science, and mathematical modeling to real problems."
+>
+  <PageHero
+    title="Where the methods get used."
+    lines={['Where the methods', 'get used.']}
+    lede="Coursework covers the methods. It rarely gives you a problem that nobody has solved yet, a dataset that is genuinely messy, or a result worth writing up."
+  />
+
+  <section class="section container two-col">
+    <div>
+      <h2>What the society does.</h2>
+    </div>
+    <div class="two-col__body">
+      <p class="body">
+        UTMSAM runs three things: workshops that teach the methods from the
+        ground up, competitions that give people a reason to practise, and
+        supervised project teams that take a question through to a written
+        result.
+      </p>
+      <p class="body">
+        The society is open to every student at the University of Toronto
+        Mississauga. Most members are in computer science, mathematics, or
+        statistics, but the work does not require it, and some of the better
+        project questions have come from people outside those programs.
+      </p>
+    </div>
+  </section>
+
+  <section class="section container">
+    <h2 class="visually-hidden">How the society works.</h2>
+    <ul class="principles">
+      {principles.map(p => (
+        <li class="principles__item">
+          <h3 class="principles__title">{p.title}</h3>
+          <p class="body">{p.body}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="affiliation">
+    <div class="container affiliation__inner">
+      <PixelIcon name="people" size={64} decorative />
+      <div>
+        <h2 class="affiliation__heading">Recognised at UTM.</h2>
+        <p class="body">
+          UTMSAM is a recognised student society at the University of Toronto
+          Mississauga, with faculty advisors who supervise project work.
+          Students working under faculty supervision can also access university
+          research computing.
+        </p>
+        <p class="body affiliation__note">
+          The previous site remains at <a href={site.legacyUrl} class="link">utmsam.sa.utoronto.ca</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <FinalCta
+    heading="Come and see what a session looks like."
+    body="Turning up once costs you an hour and commits you to nothing."
+  />
+</Base>
+
+<style>
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); align-items: start; }
+  .two-col h2 { max-width: 14ch; }
+  .two-col__body > * + * { margin-top: var(--space-4); }
+
+  .principles {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-12) var(--space-16);
+    border-top: 1px solid var(--border);
+    padding-top: var(--space-12);
+  }
+  .principles__title { font-size: var(--text-xl); line-height: var(--leading-xl); margin-bottom: var(--space-3); }
+
+  .affiliation { background: var(--cream); padding-block: var(--section-y); }
+  .affiliation__inner { display: grid; grid-template-columns: 64px 1fr; gap: var(--space-8); align-items: start; }
+  .affiliation__inner .body { max-width: 56ch; }
+  .affiliation__heading { margin-bottom: var(--space-4); }
+  /* The one place the institutional colour appears. Never on a control. */
+  .affiliation__note { margin-top: var(--space-4); color: var(--institution); }
+
+  @media (max-width: 900px) {
+    .two-col, .principles { grid-template-columns: 1fr; gap: var(--space-8); }
+    .affiliation__inner { grid-template-columns: 1fr; gap: var(--space-5); }
+  }
+</style>
