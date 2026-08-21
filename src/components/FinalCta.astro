@@ -1,0 +1,29 @@
+---
+import DescentMascot from './DescentMascot.astro';
+import { site } from '../data/site.js';
+const { heading = 'Come to a build session.', body = 'No application, no prerequisites, no expectation that you already know any of this.' } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<section class="final">
+  <div class="container final__inner">
+    <div>
+      <h2>{heading}</h2>
+      <p class="lede final__body">{body}</p>
+      <div class="final__actions">
+        <a href={site.signupUrl} class="btn btn--primary">Join UTMSAM</a>
+        <a href={`${base}/events`} class="btn btn--cream">See what is running</a>
+      </div>
+    </div>
+    <DescentMascot />
+  </div>
+</section>
+
+<style>
+  .final { border-top: 1px solid var(--border); padding-block: var(--section-y); }
+  .final__inner {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: var(--space-12); flex-wrap: wrap;
+  }
+  .final__body { margin-top: var(--space-4); }
+  .final__actions { display: flex; gap: var(--space-3); margin-top: var(--space-8); flex-wrap: wrap; }
+</style>

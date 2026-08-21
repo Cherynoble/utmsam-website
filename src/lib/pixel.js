@@ -104,3 +104,46 @@ export function toSvg(name, bitmap, { size = 48, label = '', decorative = false,
 
   return `<svg class="${className}" viewBox="0 0 ${grid} ${grid}" width="${size}" height="${size}" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg" ${a11y}>${rects}</svg>`;
 }
+
+/* -------------------------------------------------------------------------
+ * Block portraits.
+ *
+ * A deterministic mosaic built from the block ramp, seeded off a string.
+ * Used as the placeholder while a member photo is missing. It is not a
+ * generic avatar glyph and is not pretending to be a face: it is the brand
+ * material standing in for one, so an unfinished roster still looks
+ * deliberate. Replace with a real photo and this disappears.
+ * ---------------------------------------------------------------------- */
+
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function blockPortrait(seed, grid = 8) {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  const rand = mulberry32(h);
+  const keys = ['6', '5', '4', '3'];
+  const half = Math.ceil(grid / 2);
+  const rows = [];
+  for (let y = 0; y < grid; y++) {
+    const left = [];
+    for (let x = 0; x < half; x++) {
+      // Denser toward the vertical centre so the mosaic reads as a mass
+      // rather than as noise.
+      const bias = 0.34 + 0.34 * (1 - Math.abs(y - grid / 2) / (grid / 2));
+      left.push(rand() < bias ? keys[Math.floor(rand() * keys.length)] : '.');
+    }
+    const right = [...left].reverse().slice(grid % 2 ? 1 : 0);
+    rows.push([...left, ...right].join(''));
+  }
+  return rows;
+}

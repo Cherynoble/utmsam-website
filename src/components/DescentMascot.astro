@@ -1,0 +1,50 @@
+---
+/**
+ * The mascot: a point descending the loss curve, converging on the minimum.
+ *
+ * It appears once per page, at the final call to action, after the argument
+ * is already made. Placed there it reads as warmth rather than as noise.
+ *
+ * Unlike the looping GIF this pattern is borrowed from, it is SVG and CSS,
+ * so `prefers-reduced-motion` genuinely stops it. At rest the point sits on
+ * the last tread, already converged, which is the correct still frame.
+ */
+const treads = [0, 1, 2, 3, 4].map(i => ({
+  x: i * 7, y: 4 + i * 3, fill: `var(--ramp-${6 - i})`,
+}));
+---
+<svg
+  class="descent"
+  viewBox="0 0 40 22"
+  width="200"
+  height="110"
+  shape-rendering="crispEdges"
+  role="img"
+  aria-label="A point descending a stepped curve toward its minimum."
+>
+  {treads.map(t => <rect x={t.x} y={t.y} width="9" height="2" fill={t.fill} />)}
+  <rect class="descent__point" x="3" y="2" width="2" height="2" fill="var(--ink)" />
+</svg>
+
+<style>
+  .descent { width: 200px; height: auto; }
+
+  .descent__point {
+    animation: descend 4.2s steps(1, end) infinite both;
+  }
+
+  @keyframes descend {
+    0%   { transform: translate(0px, 0px); }
+    16%  { transform: translate(7px, 3px); }
+    32%  { transform: translate(14px, 6px); }
+    48%  { transform: translate(21px, 9px); }
+    64%  { transform: translate(28px, 12px); }
+    100% { transform: translate(28px, 12px); }
+  }
+
+  /* The global reduced-motion rule collapses the duration, and `both` holds
+     the final keyframe, so the point comes to rest at the minimum. */
+  @media (prefers-reduced-motion: reduce) {
+    .descent__point { animation: none; transform: translate(28px, 12px); }
+  }
+</style>

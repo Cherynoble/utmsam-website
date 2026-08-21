@@ -1,0 +1,58 @@
+---
+/**
+ * Numeric scroll progress. A percentage is legible in a way a bar is not,
+ * so the reader always knows exactly where they are.
+ *
+ * Driven entirely by CSS scroll-driven animations: no scroll listener, no
+ * JS island, nothing running on the main thread per frame. Browsers without
+ * support get nothing rather than a broken readout, which is the right
+ * trade for a progressive enhancement.
+ */
+---
+<div class="progress" aria-hidden="true">
+  <div class="progress__bar"></div>
+  <span class="progress__count"></span>
+</div>
+
+<style>
+  .progress { display: none; }
+
+  @supports (animation-timeline: scroll(root block)) {
+    @media (prefers-reduced-motion: no-preference) {
+      .progress { display: block; }
+    }
+
+    .progress__bar {
+      position: fixed; inset: var(--nav-height) 0 auto 0; z-index: 45;
+      height: 2px; background: var(--accent);
+      transform-origin: 0 50%;
+      animation: progress-scale linear both;
+      animation-timeline: scroll(root block);
+    }
+    @keyframes progress-scale {
+      from { transform: scaleX(0); }
+      to   { transform: scaleX(1); }
+    }
+
+    @property --progress {
+      syntax: '<integer>';
+      initial-value: 0;
+      inherits: false;
+    }
+
+    .progress__count {
+      position: fixed; right: var(--gutter); bottom: var(--space-5); z-index: 45;
+      counter-reset: progress var(--progress);
+      animation: progress-count linear both;
+      animation-timeline: scroll(root block);
+      font-variant-numeric: tabular-nums;
+      font-size: var(--text-sm);
+      color: var(--ink-muted);
+      background: var(--warm-ivory);
+      padding: var(--space-1) var(--space-2);
+      box-shadow: var(--elev-ring);
+    }
+    .progress__count::after { content: counter(progress) '%'; }
+    @keyframes progress-count { to { --progress: 100; } }
+  }
+</style>

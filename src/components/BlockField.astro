@@ -1,0 +1,47 @@
+---
+import { buildField } from '../lib/field.js';
+import { PALETTE } from '../lib/pixel.js';
+
+const { w = 26, h = 15 } = Astro.props;
+const { cells, path } = buildField(w, h);
+const onPath = new Set(path.map(([x, y]) => `${x},${y}`));
+
+// The resting point, clamped so the 2x2 marker stays on the integer grid
+// and inside the viewBox.
+const [px, py] = path[path.length - 1];
+const endX = Math.min(px, w - 2);
+const endY = Math.min(py, h - 2);
+
+const rects = [];
+for (let y = 0; y < h; y++) {
+  for (let x = 0; x < w; x++) {
+    rects.push({ x, y, fill: PALETTE[cells[y][x]] });
+  }
+}
+---
+<figure class="field">
+  <svg
+    viewBox={`0 0 ${w} ${h}`}
+    shape-rendering="crispEdges"
+    role="img"
+    aria-labelledby="field-caption"
+    preserveAspectRatio="none"
+  >
+    {rects.map(r => <rect x={r.x} y={r.y} width="1" height="1" fill={r.fill} />)}
+    {path.map(([x, y]) => <rect x={x} y={y} width="1" height="1" fill="var(--ink)" />)}
+    <rect x={endX} y={endY} width="2" height="2" fill="var(--ink)" />
+  </svg>
+  <figcaption id="field-caption" class="mono field__caption">
+    A loss surface. The dark path steps downhill to the minimum.
+  </figcaption>
+</figure>
+
+<style>
+  .field { display: grid; gap: var(--space-3); }
+  .field svg {
+    width: 100%;
+    aspect-ratio: 26 / 15;
+    box-shadow: var(--elev-raised);
+  }
+  .field__caption { color: var(--ink-muted); }
+</style>

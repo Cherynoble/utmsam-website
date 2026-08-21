@@ -1,0 +1,28 @@
+---
+import { blockPortrait, toRects, PALETTE } from '../lib/pixel.js';
+
+const { seed, size = 240 } = Astro.props;
+const bitmap = blockPortrait(seed);
+const rects = toRects(bitmap)
+  .map(r => `<rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" fill="${PALETTE[r.ch]}"/>`)
+  .join('');
+---
+<svg
+  class="block-portrait"
+  viewBox="0 0 8 8"
+  width={size}
+  height={size}
+  shape-rendering="crispEdges"
+  aria-hidden="true"
+  set:html={rects}
+/>
+
+<style>
+  .block-portrait {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    background: var(--cream);
+    display: block;
+  }
+</style>

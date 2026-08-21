@@ -1,0 +1,17 @@
+---
+import PixelIcon from './PixelIcon.astro';
+const { size = 30, wordmark = true, class: klass = '' } = Astro.props;
+---
+<span class={`mark ${klass}`}>
+  <PixelIcon name="mark" size={size} decorative />
+  {wordmark && <span class="mark__word">UTMSAM</span>}
+</span>
+
+<style>
+  .mark { display: inline-flex; align-items: center; gap: var(--space-3); }
+  .mark__word {
+    font-size: var(--text-lg);
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+</style>

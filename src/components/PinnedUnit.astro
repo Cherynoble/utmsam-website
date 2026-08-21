@@ -1,0 +1,77 @@
+---
+import PixelIcon from './PixelIcon.astro';
+const { pillar, index } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<section class="unit" id={pillar.id} aria-labelledby={`${pillar.id}-h`}>
+  <div class="unit__text">
+    <h2 id={`${pillar.id}-h`}>{pillar.heading}</h2>
+    <p class="lede">{pillar.body}</p>
+    <a href={`${base}${pillar.cta.href}`} class="link link-arrow">
+      {pillar.cta.label}
+      <svg width="14" height="10" viewBox="0 0 14 10" fill="none" aria-hidden="true">
+        <path d="M9 1l4 4-4 4M13 5H0" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+    </a>
+    <ul class="unit__bullets">
+      {pillar.bullets.map(b => <li>{b}</li>)}
+    </ul>
+  </div>
+
+  <div class="unit__media">
+    <div class="unit__panel raised">
+      <PixelIcon name={pillar.icon} size={160} decorative />
+      <span class="mono unit__index">{String(index + 1).padStart(2, '0')}</span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .unit {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: var(--space-16);
+    align-items: start;
+    padding-block: var(--section-y);
+    border-top: 1px solid var(--border);
+  }
+  .unit__text > * + * { margin-top: var(--space-5); }
+
+  .unit__bullets {
+    list-style: none;
+    margin-top: var(--space-8);
+    display: grid;
+    gap: var(--space-3);
+  }
+  .unit__bullets li {
+    padding-left: var(--space-5);
+    position: relative;
+    color: var(--ink-muted);
+  }
+  /* The tread, reused as a list marker. */
+  .unit__bullets li::before {
+    content: '';
+    position: absolute; left: 0; top: 0.6em;
+    width: 10px; height: 4px;
+    background: var(--ramp-3);
+  }
+
+  .unit__media { position: sticky; top: calc(var(--nav-height) + var(--space-8)); }
+  .unit__panel {
+    background: var(--cream);
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+    position: relative;
+  }
+  .unit__index {
+    position: absolute; left: var(--space-5); bottom: var(--space-4);
+    color: var(--ink-muted);
+  }
+
+  @media (max-width: 900px) {
+    .unit { grid-template-columns: 1fr; gap: var(--space-8); }
+    .unit__media { position: static; order: -1; }
+    .unit__panel { aspect-ratio: 16 / 9; }
+  }
+</style>

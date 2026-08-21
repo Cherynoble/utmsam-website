@@ -1,0 +1,141 @@
+---
+import Base from '../layouts/Base.astro';
+import BlockField from '../components/BlockField.astro';
+import BlockStrip from '../components/BlockStrip.astro';
+import PinnedUnit from '../components/PinnedUnit.astro';
+import PixelIcon from '../components/PixelIcon.astro';
+import FinalCta from '../components/FinalCta.astro';
+import { pillars, programs, news } from '../data/content.js';
+import { site } from '../data/site.js';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const [lead, ...rest] = news;
+---
+<Base progress>
+  <!-- Claim -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="hero__text">
+        <h1>
+          <span class="visually-hidden">Models that leave the classroom.</span>
+          <span class="hero-line" aria-hidden="true" style="--i:0"><span>Models that leave</span></span>
+          <span class="hero-line" aria-hidden="true" style="--i:1"><span>the classroom.</span></span>
+        </h1>
+        <p class="lede hero__lede">
+          A student-run society at UTM applying machine learning, data science,
+          and mathematical modeling to real problems.
+        </p>
+        <div class="hero__actions">
+          <a href={site.signupUrl} class="btn btn--primary">Join UTMSAM</a>
+          <a href={`${base}/projects`} class="btn btn--cream">See our projects</a>
+        </div>
+      </div>
+      <div class="hero__media"><BlockField /></div>
+    </div>
+  </section>
+
+  <BlockStrip />
+
+  <!-- Proof of momentum -->
+  <section class="section container">
+    <h2 class="marker">Recent</h2>
+    <div class="news">
+      <a class="card news__lead" href={lead.href ?? undefined} aria-disabled={!lead.href}>
+        <span class="mono news__meta">{lead.meta}</span>
+        <h3>{lead.title}</h3>
+        <span class="path">{lead.path}</span>
+      </a>
+      <div class="news__rest">
+        {rest.map(n => (
+          <a class="card" href={`${base}${n.href}`}>
+            <span class="mono news__meta">{n.meta}</span>
+            <h4>{n.title}</h4>
+            <span class="path">{n.path}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- The map, then the depth -->
+  <section class="section--tight container">
+    <h2 class="map__heading">Three things happen here.</h2>
+  </section>
+
+  <div class="container">
+    {pillars.map((p, i) => <PinnedUnit pillar={p} index={i} />)}
+  </div>
+
+  <!-- The human layer -->
+  <section class="section container">
+    <h2>Everything else.</h2>
+    <ul class="programs">
+      {programs.map(p => (
+        <li class="programs__item">
+          <PixelIcon name={p.icon} size={56} decorative />
+          <div>
+            <h3 class="programs__title">{p.title}</h3>
+            <p class="body">{p.body}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- The objection -->
+  <section class="objection">
+    <div class="container objection__inner">
+      <h2>You do not need a background in any of this.</h2>
+      <div class="objection__body">
+        <p class="body">
+          Most people arrive without having trained a model, and a good number
+          arrive without having written much code. Sessions assume nothing and
+          start from the beginning of whatever they cover.
+        </p>
+        <p class="body">
+          The society is open to every UTM student regardless of program or
+          year. There is no application and no interview.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <FinalCta />
+</Base>
+
+<style>
+  .hero { padding-block: clamp(var(--space-8), 6vh, 88px) var(--section-y); }
+  .hero__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
+    gap: var(--space-16);
+    align-items: center;
+  }
+  .hero__lede { margin-top: var(--space-6); max-width: 40ch; }
+  .hero__actions { display: flex; gap: var(--space-3); margin-top: var(--space-8); flex-wrap: wrap; }
+
+  .news { display: grid; grid-template-columns: 1.25fr 1fr; gap: var(--space-5); margin-top: var(--space-6); }
+  .news__lead { background: var(--cream); display: grid; align-content: space-between; gap: var(--space-8); min-height: 300px; }
+  .news__rest { display: grid; gap: var(--space-5); }
+  .news__rest .card { display: grid; align-content: space-between; gap: var(--space-5); }
+  .news__meta { color: var(--ink-muted); }
+
+  .map__heading { max-width: 18ch; }
+
+  .programs { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-12) var(--space-16); margin-top: var(--space-12); }
+  .programs__item { display: grid; grid-template-columns: 56px 1fr; gap: var(--space-5); align-items: start; }
+  .programs__title { font-size: var(--text-lg); line-height: var(--leading-lg); margin-bottom: var(--space-2); }
+
+  .objection { background: var(--cream); padding-block: var(--section-y); }
+  .objection__inner { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); align-items: start; }
+  .objection__inner h2 { max-width: 16ch; }
+  .objection__body > * + * { margin-top: var(--space-4); }
+
+  @media (max-width: 900px) {
+    .hero__inner { grid-template-columns: 1fr; gap: var(--space-8); }
+    .news { grid-template-columns: 1fr; }
+    .news__lead { min-height: 0; }
+    .programs { grid-template-columns: 1fr; gap: var(--space-8); }
+    .objection__inner { grid-template-columns: 1fr; gap: var(--space-6); }
+  }
+</style>
