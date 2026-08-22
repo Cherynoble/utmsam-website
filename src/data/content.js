@@ -95,6 +95,14 @@ export const news = [
 ];
 
 /* The 2026-27 program, grouped by kind rather than by date.
+
+   `month` places the event on the year grid in the /sponsors hero. It is
+   coarser than a date on purpose — a month is publishable while the exact
+   day is still being booked, and the events page still shows only the term.
+
+   TODO(exec): these months are proposed, not confirmed. Correct them as
+   each event is booked; the grid redraws from this field alone.
+
    Dates are internal until each event is confirmed, so nothing here
    carries one: the term tag is as specific as a public page should be
    until the exec says otherwise. Venues and sponsor names named as
@@ -110,22 +118,22 @@ export const eventGroups = [
     body: 'Small teams, computing and mathematics problems, and something on the line.',
     items: [
       {
-        id: 'capture-the-flag', term: 'Fall', name: 'Campus capture the flag.',
+        id: 'capture-the-flag', month: 'September', term: 'Fall', name: 'Campus capture the flag.',
         body: 'Teams of three or four race across campus solving computing and mathematics clues hidden at key locations.',
         note: 'Prizes for first and second place.',
       },
       {
-        id: 'emberhacks', term: 'Fall', name: 'EmberHacks.',
+        id: 'emberhacks', month: 'November', term: 'Fall', name: 'EmberHacks.',
         body: 'A hackathon run over a single day. Teams build a project in eight hours with mentorship and sponsor support, competing across several tracks.',
         note: 'Prizes across multiple tracks.',
       },
       {
-        id: 'jeopardy', term: 'Fall', name: 'Halloween Jeopardy.',
+        id: 'jeopardy', month: 'October', term: 'Fall', name: 'Halloween Jeopardy.',
         body: 'Computing, mathematics and statistics Jeopardy, with categories running from algorithms through UTM trivia to tech pop culture. Teams of three or four.',
         note: 'Costumes encouraged.',
       },
       {
-        id: 'coding-challenge', term: 'Winter', name: 'Coding challenge.',
+        id: 'coding-challenge', month: 'February', term: 'Winter', name: 'Coding challenge.',
         body: 'A problem-set competition. Teams work through computing puzzles against the clock.',
         note: 'Prizes for the top teams.',
       },
@@ -141,24 +149,24 @@ export const eventGroups = [
     body: 'The people doing the work, describing what it actually involves.',
     items: [
       {
-        id: 'academia-night', term: 'Fall', name: 'Academia night.',
+        id: 'academia-night', month: 'October', term: 'Fall', name: 'Academia night.',
         body: 'A panel of UTM professors, upper-year students and recent graduates on careers in technology, data and computing.',
         note: 'Open to all students.',
       },
       {
-        id: 'industry-panel', term: 'Winter', name: 'Industry speaker panel.',
+        id: 'industry-panel', month: 'February', term: 'Winter', name: 'Industry speaker panel.',
         body: 'A moderated panel with AI engineers, data scientists and machine learning researchers on deploying language models in production and where the engineering is heading. Open questions and networking afterwards.',
         // TODO(exec): name the firms here once speakers are confirmed.
         note: null,
       },
       {
-        id: 'beyond-campus', term: 'Winter', name: 'UTMSAM beyond campus.',
+        id: 'beyond-campus', month: 'April', term: 'Winter', name: 'UTMSAM beyond campus.',
         body: 'A conference hosted inside a tech office in downtown Toronto: talks, product deep-dives from practitioners, and a networking mixer.',
         // TODO(exec): confirm the host office before publishing a venue.
         note: null,
       },
       {
-        id: 'seminar-series', term: 'Winter', name: 'AI seminar series.',
+        id: 'seminar-series', month: 'January', term: 'Winter', name: 'AI seminar series.',
         body: 'A series of talks led by different professors on current work in artificial intelligence. Each session is self-contained, so joining late costs nothing.',
         note: null,
       },
@@ -174,17 +182,17 @@ export const eventGroups = [
     body: 'Some of it is a skill you leave with. Some of it is an hour off.',
     items: [
       {
-        id: 'printing', term: 'Winter', name: '3D printing workshop.',
+        id: 'printing', month: 'March', term: 'Winter', name: '3D printing workshop.',
         body: 'A hands-on printing session run during Deerhacks.',
         note: 'Run with Deerhacks.',
       },
       {
-        id: 'karaoke', term: 'Winter', name: 'Slideshow karaoke.',
+        id: 'karaoke', month: 'April', term: 'Winter', name: 'Slideshow karaoke.',
         body: 'Participants present a slideshow they have never seen before, live, with no preparation.',
         note: 'Run with MCSS.',
       },
       {
-        id: 'destressor', term: 'Fall', name: 'Exam destressor.',
+        id: 'destressor', month: 'December', term: 'Fall', name: 'Exam destressor.',
         body: 'Games, hot chocolate and snacks. One hour off before the December crunch.',
         note: 'Co-hosted with other student clubs.',
       },
@@ -313,4 +321,80 @@ export const eventsPage = {
   heading: 'What’s running.',
   lede: 'Eleven initiatives across the Fall and Winter terms, from an eight-hour hackathon to an hour of hot chocolate before exams.',
   note: 'Dates are announced on Instagram and Discord as each event is confirmed.',
+};
+
+/* ------------------------------------------------------------------
+   Sponsors. The one page on the site written for someone who is not a
+   student: a company deciding whether to fund the prize table.
+
+   Every number here is a placeholder and marked as one. Nothing on this
+   page should go live carrying a figure nobody has checked — a sponsor
+   who finds out the membership count was invented does not come back.
+   ------------------------------------------------------------------ */
+export const sponsors = {
+  headingLines: ['Fund the prizes.', 'Meet the students.'],
+  lede: 'UTMSAM runs UTM’s hackathon, its AI seminar series, and an undergraduate research journal. Sponsorship pays for all three.',
+
+  // TODO(exec): every figure below is invented. Replace or delete the
+  // whole array — four blank blocks are worse than two true ones.
+  metrics: [
+    { value: '300', label: 'active members' },
+    { value: '120', label: 'hackathon participants' },
+    { value: '14',  label: 'events across the year' },
+    { value: '6',   label: 'papers in journal vol. 1' },
+  ],
+
+  funds: [
+    {
+      icon: 'trophy',
+      title: 'EmberHacks.',
+      body: 'The prize pool, food for a full day, and the venue for an eight-hour build across several tracks.',
+    },
+    {
+      icon: 'd-workshop',
+      title: 'The AI seminar series.',
+      body: 'Speaker honoraria and travel for sessions on model behaviour, evaluation, and the state of AI in games.',
+    },
+    {
+      icon: 'd-journal',
+      title: 'The undergraduate journal.',
+      body: 'Layout, DOI registration, and a print run for each volume of student research.',
+    },
+  ],
+
+  // TODO(exec): confirm the prices and the benefit list with the incoming
+  // VP Finance before this page ships. The ladder below is a proposal.
+  tiers: {
+    term: 'September – April',
+    names: ['Supporter', 'Partner', 'Lead'],
+    prices: ['$500', '$1,500', '$4,000'],
+    benefits: [
+      { label: 'Logo on the site and event signage',   at: [true, true, true] },
+      { label: 'Named prize track at EmberHacks',      at: [false, true, true] },
+      { label: 'A speaker slot in the seminar series', at: [false, true, true] },
+      { label: 'Resume book from participants',        at: [false, true, true] },
+      { label: 'Title billing on the event',           at: [false, false, true] },
+      { label: 'Recruiting table on the day',          at: [false, false, true] },
+    ],
+  },
+
+  // TODO(exec): add real sponsors as { name, url }. While this is empty
+  // the section does not render at all, which is correct: an empty logo
+  // wall reads worse than no logo wall.
+  current: [],
+
+  inKind: {
+    heading: 'Not all of it has to be money.',
+    body: [
+      'Send a speaker. Send mentors for the hackathon weekend. Cloud credits, hardware, or something for the prize table. All of it counts, and all of it is acknowledged the same way a cash tier is.',
+    ],
+    // Institutional blue, per DESIGN.md: faculty content, not a UI accent.
+    faculty: 'Faculty and departments: the journal takes submissions and supervision offers year-round.',
+  },
+
+  // TODO(exec): name the actual contact. VP Finance is the assumed owner.
+  contact: {
+    heading: 'Talk to us.',
+    body: 'Sponsorship is handled by the VP Finance. We reply within two business days and can send last year’s report on request.',
+  },
 };

@@ -1,0 +1,384 @@
+---
+/**
+ * The one page addressed to someone who is not a student.
+ *
+ * Structurally it is the /events table type rather than the /research
+ * document type: a reader deciding whether to pay wants a grid they can
+ * scan, not a prose column. The tier table is the page — everything
+ * above it is the case for reading it, everything below is how to act.
+ *
+ * The hero is neither the homepage's split nor the sub-page banner. This
+ * page is addressed to someone who did not arrive by browsing the society,
+ * so the claim has to be legible in the first screen with nothing to scroll
+ * past first — and with no graphic competing with it either.
+ *
+ * The claim, the ramp strip and the numbers are one screen, floored to the
+ * viewport, so the fold lands on the bottom edge of the metrics band. A
+ * sliver of the next section showing under the numbers is what made the
+ * page read as fragmented rather than as one argument: the reader saw two
+ * half-sections at once and neither of them whole.
+ */
+import Base from '../layouts/Base.astro';
+import BlockStrip from '../components/BlockStrip.astro';
+import PixelIcon from '../components/PixelIcon.astro';
+import Btn from '../components/Btn.astro';
+import { sponsors, eventGroups } from '../data/content.js';
+import { site } from '../data/site.js';
+
+const { metrics, funds, tiers, current, inKind, contact } = sponsors;
+const mailto = `mailto:${site.email}?subject=Sponsoring%20UTMSAM`;
+
+/* The academic year as a grid: a column per month, a row per kind of
+   event, a block where the two meet. Read straight off eventGroups, so
+   adding an event to the events page places it here too and the two can
+   never disagree.
+
+   A row per kind rather than a stack per month is what makes the grid
+   worth drawing: the empty cells say which months are quiet for which
+   kind of thing, which is exactly what a sponsor weighing a hackathon
+   against a term of talks wants to see. Stacked, every column would fill
+   from the top and the shape would carry no information at all. */
+const KIND_TINT = { Competition: 6, Talk: 2, Workshop: 4 };
+const MONTHS = [
+  ['S', 'September'], ['O', 'October'], ['N', 'November'], ['D', 'December'],
+  ['J', 'January'], ['F', 'February'], ['M', 'March'], ['A', 'April'],
+];
+const kinds = eventGroups.map(g => g.kind);
+const eventCount = eventGroups.reduce((n, g) => n + g.items.length, 0);
+
+// One row per kind, one cell per month. A cell is a list, so two events of
+// the same kind in one month render as a single block rather than silently
+// dropping one.
+const grid = eventGroups.map(g => ({
+  kind: g.kind,
+  cells: MONTHS.map(([, name]) => g.items.filter(i => i.month === name)),
+}));
+
+const spellCount = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight',
+  'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen'][eventCount] ?? eventCount;
+---
+<Base title="Sponsors" progress description={sponsors.lede}>
+  <!-- Hero, strip and metrics are one screen, not three sections. -->
+  <div class="firstscreen">
+    <section class="hero">
+      <div class="container hero__inner">
+        <div class="hero__text">
+          <span class="path">/sponsors</span>
+          <h1>
+            {sponsors.headingLines.map((line, i) => <Fragment>{i > 0 && <br />}{line}</Fragment>)}
+          </h1>
+          <p class="lede hero__lede">{sponsors.lede}</p>
+          <div class="hero__actions">
+            <Btn href={mailto}>Sponsor UTMSAM</Btn>
+            <Btn href="#tiers" variant="cream">See the tiers</Btn>
+          </div>
+        </div>
+
+        <!-- What a sponsor is buying into: a year that is visibly full.
+             Generated from the events page's own data, so it cannot drift
+             out of step with /events. -->
+        <figure class="year">
+          <figcaption class="marker year__cap">{spellCount} events, September to April</figcaption>
+
+          <div class="year__grid" style={`--rows:${grid.length}`}>
+            {grid.map(row => MONTHS.map(([, name], i) => {
+              const evs = row.cells[i];
+              return evs.length === 0
+                ? <div class="year__cell" aria-hidden="true"></div>
+                : <div class="year__cell year__cell--on" data-tint={KIND_TINT[row.kind]}
+                       title={`${name} — ${evs.map(e => e.name.replace(/\.$/, '')).join(', ')}`}>
+                    <span class="visually-hidden">{name}: {evs.map(e => e.name.replace(/\.$/, '')).join(', ')} ({row.kind})</span>
+                    {evs.length > 1 && <span class="mono year__n" aria-hidden="true">{evs.length}</span>}
+                  </div>;
+            }))}
+          </div>
+
+          <ol class="year__axis" aria-hidden="true">
+            {MONTHS.map(([letter]) => <li>{letter}</li>)}
+          </ol>
+
+          <ul class="year__key">
+            {kinds.map(k => (
+              <li class="year__keyitem">
+                <span class="year__swatch" data-tint={KIND_TINT[k]} aria-hidden="true"></span>{k}s
+              </li>
+            ))}
+          </ul>
+        </figure>
+      </div>
+    </section>
+
+    <BlockStrip />
+
+    {metrics.length > 0 && (
+      <section class="container metrics__section">
+        <h2 class="marker">Last year</h2>
+        <ul class="metrics">
+          {metrics.map(m => (
+            <li class="metric">
+              <span class="metric__value">{m.value}</span>
+              <span class="metric__label">{m.label}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </div>
+
+  <section class="section container funds">
+    <h2 class="funds__heading">What the money pays for.</h2>
+    <ul class="funds__list">
+      {funds.map(f => (
+        <li class="funds__item">
+          <PixelIcon name={f.icon} size={56} decorative />
+          <div>
+            <h3 class="funds__title">{f.title}</h3>
+            <p class="body">{f.body}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- Cream band, so the one section a sponsor came for is the one
+       section that changes ground. Retint the hairline or the container
+       rules stop dead at the top of it. -->
+  <section class="tiers" id="tiers">
+    <div class="container tiers__inner">
+      <div class="tiers__head">
+        <h2>Tiers.</h2>
+        <p class="mono tiers__term">{tiers.term}</p>
+      </div>
+
+      <table class="tiertable">
+        <caption class="visually-hidden">Sponsorship tiers and what each one includes.</caption>
+        <thead>
+          <tr>
+            <td></td>
+            {tiers.names.map((name, i) => (
+              <th scope="col" class="tiertable__tier" data-tier={i}>
+                <span class="tiertable__name">{name}</span>
+                <span class="tiertable__price">{tiers.prices[i]}</span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {tiers.benefits.map(b => (
+            <tr>
+              <th scope="row" class="tiertable__label">{b.label}</th>
+              {b.at.map((has, i) => (
+                <td class="tiertable__cell" data-tier={i}>
+                  {has
+                    ? <><PixelIcon name="chevron" size={12} decorative /><span class="visually-hidden">Included</span></>
+                    : <><span aria-hidden="true" class="tiertable__no">—</span><span class="visually-hidden">Not included</span></>}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {current.length > 0 && (
+    <section class="section container">
+      <h2 class="marker">Current sponsors</h2>
+      <ul class="wall">
+        {current.map(s => (
+          <li class="wall__item"><a class="link" href={s.url}>{s.name}</a></li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  <section class="section container inkind">
+    <h2 class="inkind__heading">{inKind.heading}</h2>
+    <div class="inkind__body">
+      {inKind.body.map(p => <p class="body">{p}</p>)}
+      <p class="body inkind__faculty">{inKind.faculty}</p>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="container final__inner">
+      <div>
+        <h2>{contact.heading}</h2>
+        <p class="lede final__body">{contact.body}</p>
+        <div class="final__actions">
+          <Btn href={mailto}>{site.email}</Btn>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* One screen: the claim grows into whatever room is left, the strip and
+     the numbers sit on the fold. dvh rather than vh so retracting mobile
+     browser chrome does not move the fold, and min-height rather than
+     height so a long headline grows the screen instead of clipping it. */
+  .firstscreen {
+    min-height: calc(100dvh - var(--nav-height));
+    display: grid;
+    grid-template-rows: 1fr auto auto;
+  }
+  .metrics__section { padding-block: var(--space-8) var(--space-12); align-content: end; }
+
+  /* Headline left, lede and actions in the right rail, bottom-aligned:
+     the same split PageHero uses, so a text-only opener still fills the
+     row instead of leaving half the screen empty. No viewport floor —
+     that is the homepage's one full-screen moment, not this page's. */
+  /* The claim reads down the left column; the year fills the right. The
+     figure stretching to the full height is what absorbs the slack the
+     floored screen leaves — the space is spent on content rather than
+     pooled above the headline. */
+  .hero__inner {
+    height: 100%;
+    padding-block: clamp(var(--space-8), 5vh, 72px) var(--space-12);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 460px);
+    gap: var(--space-16);
+    align-items: stretch;
+  }
+  .hero__text { align-self: center; }
+  .hero__text .path { display: block; }
+  .hero__text h1 { margin-top: var(--space-5); max-width: 16ch; }
+  .hero__lede { margin-top: var(--space-6); max-width: 42ch; }
+  .hero__actions { display: flex; gap: var(--space-3); margin-top: var(--space-8); flex-wrap: wrap; }
+
+  /* Caption, grid, month axis, key. Only the grid row grows, so the
+     labels stay put while the blocks take the slack the floored screen
+     leaves — the empty space is spent on the year rather than pooled
+     above the headline. */
+  .year { display: grid; grid-template-rows: auto auto auto auto; gap: var(--space-2); align-content: center; }
+  .year__cap { margin-bottom: var(--space-4); }
+  .year__cap { color: var(--ink-muted); }
+
+  .year__grid {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    /* Square cells, always. Stretching them to fill a tall window turns
+       the calendar into a bar chart; the leftover height goes to the
+       figure's align-content instead. */
+    grid-template-rows: repeat(var(--rows), auto);
+    gap: var(--space-2);
+    min-height: 0;
+    /* auto tracks stretch under the default align-content, which pulls the
+       three rows apart into bands. The figure centres the whole block; the
+       grid itself stays tight. */
+    align-content: start;
+  }
+  /* An empty month is drawn, not skipped. It is the same block one step
+     off the ramp, so the grid reads as a calendar with gaps rather than
+     as a bar chart with holes in it. */
+  .year__cell { aspect-ratio: 1; background: var(--border); }
+  .year__cell--on { cursor: default; display: grid; place-items: center; }
+  /* Only shows when one kind runs twice in a month. */
+  .year__n { font-size: var(--text-xs); color: var(--accent-on); }
+  [data-tint='2'] .year__n, [data-tint='4'] .year__n { color: var(--ink); }
+
+  /* The ramp carries the kind. Competitions take the accent: they are
+     what a sponsor is most often buying into. */
+  [data-tint='2'] { background: var(--ramp-2); }
+  [data-tint='4'] { background: var(--ramp-4); }
+  [data-tint='6'] { background: var(--ramp-6); }
+
+  .year__axis { list-style: none; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: var(--space-2); }
+  .year__axis li { text-align: center; font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-muted); }
+
+  /* The key doubles as the row legend, so it stacks in row order rather
+     than running as a flat strip. */
+  .year__key { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin-top: var(--space-2); }
+  .year__keyitem { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--ink-muted); }
+  .year__swatch { width: 12px; height: 12px; flex: none; }
+
+  /* Butted blocks, 1px of ground showing through, same device as
+     .card-grid. The numbers are the section: a stat set small under a
+     marker reads as a footnote, which is the opposite of the job. */
+  .metrics {
+    list-style: none;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px; background: var(--warm-ivory);
+    margin-top: var(--space-6);
+  }
+  .metric { padding: var(--space-6) var(--space-5) var(--space-5); display: grid; align-content: start; }
+  .metric__value { font-size: var(--text-2xl); line-height: var(--leading-2xl); letter-spacing: var(--tracking-display); }
+  .metric__label { margin-top: var(--space-4); font-size: var(--text-sm); line-height: 1.4; }
+  /* Up the ramp, left to right. Only the last block needs knocked-out
+     ink; the rest sit on yellow through orange and stay dark. */
+  .metric:nth-child(1) { background: var(--ramp-1); }
+  .metric:nth-child(2) { background: var(--ramp-2); }
+  .metric:nth-child(3) { background: var(--ramp-4); }
+  .metric:nth-child(4) { background: var(--ramp-6); color: var(--accent-on); }
+  .metric:nth-child(4) .metric__label { color: var(--accent-on); }
+
+  .funds { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr); gap: var(--space-16); align-items: start; }
+  .funds__heading { max-width: 11ch; }
+  .funds__list { list-style: none; display: grid; }
+  .funds__item { display: grid; grid-template-columns: 56px 1fr; gap: var(--space-5); align-items: start; padding-block: var(--space-6); }
+  .funds__item + .funds__item { border-top: 1px solid var(--border); }
+  .funds__item:first-child { padding-top: 0; }
+  .funds__title { font-size: var(--text-lg); line-height: var(--leading-lg); margin-bottom: var(--space-2); }
+
+  .tiers { background: var(--cream); --border: var(--border-cream); border-top: 1px solid var(--border); }
+  .tiers__inner { padding-block: var(--section-y); }
+  .tiers__head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-6); flex-wrap: wrap; }
+  .tiers__term { color: var(--ink-muted); }
+
+  /* A real table: the benefit column is a row header, so a screen reader
+     announces "Named prize track, Partner, included" instead of reading
+     a grid of loose dashes. */
+  .tiertable { width: 100%; border-collapse: collapse; margin-top: var(--space-8); table-layout: fixed; }
+  .tiertable__tier { text-align: left; padding: var(--space-4); vertical-align: top; }
+  .tiertable__tier[data-tier='0'] { background: var(--ramp-2); }
+  .tiertable__tier[data-tier='1'] { background: var(--ramp-4); }
+  .tiertable__tier[data-tier='2'] { background: var(--ramp-6); color: var(--accent-on); }
+  .tiertable__name { display: block; font-size: var(--text-sm); }
+  .tiertable__price { display: block; font-size: var(--text-lg); line-height: var(--leading-lg); margin-top: var(--space-1); }
+  .tiertable__label { text-align: left; font-size: var(--text-sm); line-height: 1.4; color: var(--ink-muted); padding: var(--space-4) var(--space-4) var(--space-4) 0; border-bottom: 1px solid var(--border); }
+  .tiertable__cell { text-align: center; padding: var(--space-4); border-bottom: 1px solid var(--border); }
+  .tiertable__cell :global(.pixel-icon) { transform: rotate(90deg); }
+  .tiertable__no { color: color-mix(in srgb, var(--ink-muted) 35%, var(--cream)); }
+  /* The top tier stays tinted the whole way down, so the eye tracks one
+     column instead of scanning a field of marks. */
+  .tiertable__cell[data-tier='2'] { background: color-mix(in srgb, var(--ramp-1) 22%, var(--cream)); }
+  .tiertable tbody tr:last-child :is(.tiertable__label, .tiertable__cell) { border-bottom: 0; }
+
+  .wall { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1px; background: var(--border); margin-top: var(--space-6); border: 1px solid var(--border); }
+  .wall__item { background: var(--warm-ivory); min-height: 88px; display: grid; place-items: center; padding: var(--space-4); text-align: center; }
+
+  .inkind { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: var(--space-16); align-items: start; }
+  .inkind__heading { max-width: 13ch; }
+  .inkind__body > * + * { margin-top: var(--space-4); }
+  /* Institutional blue, reserved for faculty affiliation. Never a link
+     or a button — a rule in the margin instead. See DESIGN.md. */
+  .inkind__faculty { color: var(--institution); border-left: 3px solid var(--institution); padding-left: var(--space-4); }
+
+  .final { border-top: 1px solid var(--border); }
+  .final__inner { padding-block: var(--section-y); }
+  .final__body { margin-top: var(--space-4); }
+  .final__actions { display: flex; gap: var(--space-3); margin-top: var(--space-8); flex-wrap: wrap; }
+
+  @media (max-width: 900px) {
+    /* Below the split the first screen is always taller than the viewport,
+       so the floor stops meaning anything and only forces dead space. */
+    .firstscreen { min-height: 0; display: block; }
+    .metrics__section { padding-block: var(--space-8); }
+    .hero__inner { grid-template-columns: 1fr; gap: var(--space-8); align-items: start; padding-bottom: var(--space-8); }
+    /* Nothing to stretch into below the split, so the rows go back to
+       being square-ish rather than filling a height that no longer exists. */
+    .year { grid-template-rows: auto auto auto auto; }
+    .year__grid { grid-template-rows: repeat(var(--rows), auto); }
+    .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .funds { grid-template-columns: 1fr; gap: var(--space-8); }
+    .inkind { grid-template-columns: 1fr; gap: var(--space-6); }
+    /* Three price columns plus a benefit column below 900px puts the
+       labels at two words a line. Scroll the table rather than wrap it. */
+    .tiers__inner { overflow-x: auto; }
+    .tiertable { min-width: 620px; }
+  }
+  @media (max-width: 520px) {
+    .metrics { grid-template-columns: 1fr; }
+  }
+</style>

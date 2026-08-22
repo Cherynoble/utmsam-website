@@ -7,7 +7,6 @@ export const site = {
   // TODO(exec): replace with the live invite before launch.
   discord: '#',
   email: 'utmsam@utoronto.ca', // TODO(exec): confirm the current inbox.
-  legacyUrl: 'https://utmsam.sa.utoronto.ca/',
 };
 
 export const nav = [
@@ -15,4 +14,5 @@ export const nav = [
   { href: '/events',   label: 'Events' },
   { href: '/research', label: 'Research' },
   { href: '/team',     label: 'Team' },
+  { href: '/sponsors', label: 'Sponsors' },
 ];
