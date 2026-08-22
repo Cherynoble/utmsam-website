@@ -238,7 +238,13 @@ mark cannot drift apart. Regenerate both from the source logo together.
   to media-first single column below 900px. The list marker is the tread,
   reused.
 - **FinalCta** — closing block, primary + cream buttons, with the mascot.
-- **DescentMascot** — a point climbing the stepped curve to its top tread.
+- **DescentMascot** — a point hopping up the stepped curve to its top tread.
+  The point is wrapped twice on purpose: a jump needs its two axes eased
+  differently, and one transform cannot do that. The outer layer carries the
+  horizontal travel and the rise, linear; the inner one adds the air, out of
+  the tread decelerating and onto the next accelerating. Collapse them into a
+  single animation and the only honest options left are a straight diagonal
+  or a teleport.
   Appears **once per page, at the final call to action**, after the argument is
   already made; placed there it reads as warmth rather than noise. Unlike the
   looping GIF this pattern is borrowed from, it's SVG and CSS, so

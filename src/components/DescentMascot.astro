@@ -1,6 +1,6 @@
 ---
 /**
- * The mascot: a point climbing a stepped curve, one tread at a time.
+ * The mascot: a point hopping up a stepped curve, one tread at a time.
  *
  * It appears once per page, at the final call to action, after the argument
  * is already made. Placed there it reads as warmth rather than as noise.
@@ -8,6 +8,15 @@
  * Unlike the looping GIF this pattern is borrowed from, it is SVG and CSS,
  * so `prefers-reduced-motion` genuinely stops it. At rest the point sits on
  * the top tread, already arrived, which is the correct still frame.
+ *
+ * The point is wrapped twice because a jump needs its two axes eased
+ * differently and one transform cannot do that. `descent__walk` carries the
+ * horizontal travel and the tread-to-tread rise, linear, so the point covers
+ * ground at a constant rate the way a thrown thing does. `descent__hop` adds
+ * the air: up off the tread decelerating, down onto the next one
+ * accelerating. Summed, they are the arc. Collapse them into one animation
+ * and the only honest options are a straight diagonal or the teleport this
+ * replaced.
  */
 // Ramp runs gold to ember, matching the emblem: light at the bottom, dark at
 // the top tread the point is heading for. Reversing it here would make the
@@ -23,31 +32,63 @@ const treads = [0, 1, 2, 3, 4].map(i => ({
   height="110"
   shape-rendering="crispEdges"
   role="img"
-  aria-label="A point climbing a stepped curve to its top tread."
+  aria-label="A point hopping up a stepped curve to its top tread."
 >
   {treads.map(t => <rect x={t.x} y={t.y} width="9" height="2" fill={t.fill} />)}
-  <rect class="descent__point" x="3" y="14" width="2" height="2" fill="var(--ink)" />
+  <g class="descent__walk">
+    <g class="descent__hop">
+      <rect class="descent__point" x="3" y="14" width="2" height="2" fill="var(--ink)" />
+    </g>
+  </g>
 </svg>
 
 <style>
   .descent { width: 200px; height: auto; }
 
-  .descent__point {
-    animation: descend 4.2s steps(1, end) infinite both;
+  /* One duration on both layers, or the arc drifts out of step with the
+     travel and the point lands somewhere other than the tread. */
+  .descent__walk { animation: descent-walk 4.2s linear infinite both; }
+  .descent__hop  { animation: descent-hop  4.2s linear infinite both; }
+
+  /* Four hops, each 10% of the cycle with a 5% beat on the tread after it,
+     then the point stays up top for the rest of the loop. */
+  @keyframes descent-walk {
+    0%   { transform: translate(0px, 0px); }
+    10%  { transform: translate(7px, -3px); }
+    15%  { transform: translate(7px, -3px); }
+    25%  { transform: translate(14px, -6px); }
+    30%  { transform: translate(14px, -6px); }
+    40%  { transform: translate(21px, -9px); }
+    45%  { transform: translate(21px, -9px); }
+    55%  { transform: translate(28px, -12px); }
+    100% { transform: translate(28px, -12px); }
   }
 
-  @keyframes descend {
-    0%   { transform: translate(0px, 0px); }
-    16%  { transform: translate(7px, -3px); }
-    32%  { transform: translate(14px, -6px); }
-    48%  { transform: translate(21px, -9px); }
-    64%  { transform: translate(28px, -12px); }
-    100% { transform: translate(28px, -12px); }
+  /* The air. Rises off the tread slowing down, falls onto the next one
+     speeding up — the timing function on each keyframe governs the segment
+     that starts there, which is what puts gravity in it. 3 units of lift
+     over a 3 unit rise: enough to read as a hop, not so much that the point
+     leaves the curve it is meant to be following. */
+  @keyframes descent-hop {
+    0%   { transform: translateY(0px);  animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1); }
+    5%   { transform: translateY(-3px); animation-timing-function: cubic-bezier(0.6, 0, 0.75, 0.4); }
+    10%  { transform: translateY(0px); }
+    15%  { transform: translateY(0px);  animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1); }
+    20%  { transform: translateY(-3px); animation-timing-function: cubic-bezier(0.6, 0, 0.75, 0.4); }
+    25%  { transform: translateY(0px); }
+    30%  { transform: translateY(0px);  animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1); }
+    35%  { transform: translateY(-3px); animation-timing-function: cubic-bezier(0.6, 0, 0.75, 0.4); }
+    40%  { transform: translateY(0px); }
+    45%  { transform: translateY(0px);  animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1); }
+    50%  { transform: translateY(-3px); animation-timing-function: cubic-bezier(0.6, 0, 0.75, 0.4); }
+    55%  { transform: translateY(0px); }
+    100% { transform: translateY(0px); }
   }
 
   /* The global reduced-motion rule collapses the duration, and `both` holds
      the final keyframe, so the point comes to rest on the top tread. */
   @media (prefers-reduced-motion: reduce) {
-    .descent__point { animation: none; transform: translate(28px, -12px); }
+    .descent__walk { animation: none; transform: translate(28px, -12px); }
+    .descent__hop  { animation: none; transform: none; }
   }
 </style>
