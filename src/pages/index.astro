@@ -5,7 +5,6 @@ import BlockStrip from '../components/BlockStrip.astro';
 import PinnedUnit from '../components/PinnedUnit.astro';
 import PixelIcon from '../components/PixelIcon.astro';
 import FinalCta from '../components/FinalCta.astro';
-import Markitecture from '../components/Markitecture.astro';
 import Btn from '../components/Btn.astro';
 import { pillars, programs, news } from '../data/content.js';
 import { site } from '../data/site.js';
@@ -42,7 +41,7 @@ const [lead, ...rest] = news;
   <section class="section container">
     <h2 class="marker">Recent</h2>
     <div class="news card-grid">
-      <a class="card news__lead" href={lead.href ?? undefined} aria-disabled={!lead.href}>
+      <a class="card news__lead" href={lead.href}>
         <span class="mono news__meta">{lead.meta}</span>
         <h3>{lead.title}</h3>
         <span class="path">{lead.path}</span>
@@ -59,15 +58,28 @@ const [lead, ...rest] = news;
     </div>
   </section>
 
-  <!-- The map, then the depth -->
-  <Markitecture
-    heading="Three things happen here."
-    blocks={pillars.map(p => ({ href: `#${p.id}`, icon: p.icon, short: p.short, line: p.line }))}
-  />
+  <!-- The map and the depth, side by side: the rail is the map. -->
+  <section class="section container pillars" aria-labelledby="pillars-h">
+    <div class="pillars__rail">
+      <h2 id="pillars-h" class="pillars__heading">Three things happen here.</h2>
+      <nav class="pillars__nav" aria-label="Sections">
+        <ol>
+          {pillars.map((p, i) => (
+            <li>
+              <a href={`#${p.id}`} data-rail={p.id}>
+                <span class="mono pillars__num">{String(i + 1).padStart(2, '0')}</span>
+                <span>{p.short}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </div>
 
-  <div class="container">
-    {pillars.map((p, i) => <PinnedUnit pillar={p} index={i} />)}
-  </div>
+    <div class="pillars__units">
+      {pillars.map((p, i) => <PinnedUnit pillar={p} index={i} />)}
+    </div>
+  </section>
 
   <!-- The human layer -->
   <section class="section container">
@@ -128,10 +140,39 @@ const [lead, ...rest] = news;
   .hero__actions { display: flex; gap: var(--space-3); margin-top: var(--space-8); flex-wrap: wrap; }
 
   .news { grid-template-columns: 1.25fr 1fr; margin-top: var(--space-6); }
-  .news__lead { background: var(--cream); display: grid; align-content: space-between; gap: var(--space-8); min-height: 300px; }
+  /* Cream on ivory needs the darker hairline, or the card has no edge. */
+  .news__lead { background: var(--cream); box-shadow: 0 0 0 1px var(--border-cream); display: grid; align-content: space-between; gap: var(--space-8); min-height: 300px; }
   .news__rest { display: grid; }
   .news__rest .card { display: grid; align-content: space-between; gap: var(--space-5); }
   .news__meta { color: var(--ink-muted); }
+
+
+  /* The rail is the floorplan: it names the three units and stays put
+     while they scroll past, so the map and the depth are one section
+     instead of the same three things said twice. */
+  .pillars { display: grid; grid-template-columns: minmax(0, 240px) minmax(0, 1fr); gap: var(--space-16); align-items: start; }
+  .pillars__rail { position: sticky; top: calc(var(--nav-height) + var(--space-8)); }
+  .pillars__heading { font-size: var(--text-lg); line-height: var(--leading-lg); }
+  .pillars__nav ol { list-style: none; margin-top: var(--space-8); display: grid; }
+  /* Each item keeps the ramp step its block had on the old floorplan,
+     so the rail carries the same three colours the units used to. */
+  .pillars__nav li:nth-child(1) { --tint: var(--ramp-2); --tint-on: var(--ink); }
+  .pillars__nav li:nth-child(2) { --tint: var(--ramp-4); --tint-on: var(--ink); }
+  .pillars__nav li:nth-child(3) { --tint: var(--ramp-6); --tint-on: var(--accent-on); }
+  .pillars__nav a {
+    display: grid; grid-template-columns: auto 1fr; gap: var(--space-3);
+    padding: var(--space-3) 0 var(--space-3) var(--space-4);
+    /* The bar is always 4px so the current item does not shift the row. */
+    border-left: 4px solid color-mix(in srgb, var(--tint) 30%, transparent);
+    color: var(--ink-muted);
+    text-decoration: none;
+    transition: color var(--motion-base) var(--ease-standard),
+                border-color var(--motion-base) var(--ease-standard);
+  }
+  .pillars__nav a:hover { color: var(--ink); border-left-color: var(--tint); }
+  .pillars__nav a[aria-current='true'] { color: var(--ink); border-left-color: var(--tint); }
+  .pillars__num { color: var(--ink-muted); padding: 0 var(--space-1); }
+  .pillars__nav a[aria-current='true'] .pillars__num { background: var(--tint); color: var(--tint-on); }
 
   .programs { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-12) var(--space-16); margin-top: var(--space-12); }
   .programs__item { display: grid; grid-template-columns: 56px 1fr; gap: var(--space-5); align-items: start; }
@@ -148,7 +189,25 @@ const [lead, ...rest] = news;
     .hero__inner { grid-template-columns: 1fr; gap: var(--space-8); }
     .news { grid-template-columns: 1fr; }
     .news__lead { min-height: 0; }
+    /* Below the split the rail is just a heading and a jump list. */
+    .pillars { grid-template-columns: 1fr; gap: var(--space-8); }
+    .pillars__rail { position: static; }
     .programs { grid-template-columns: 1fr; gap: var(--space-8); }
     .objection__inner { grid-template-columns: 1fr; gap: var(--space-6); }
   }
 </style>
+
+<script>
+  // ponytail: rootMargin picks the unit crossing the top third; no
+  // scroll handler, no ratio maths. Swap for a scroll-driven timeline
+  // when Safari ships one.
+  const links = document.querySelectorAll('.pillars__nav a');
+  const io = new IntersectionObserver(
+    entries => entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      links.forEach(a => a.setAttribute('aria-current', String(a.dataset.rail === e.target.id)));
+    }),
+    { rootMargin: '-20% 0px -70% 0px' }
+  );
+  document.querySelectorAll('.pillars__units .unit').forEach(u => io.observe(u));
+</script>
