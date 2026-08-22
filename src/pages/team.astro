@@ -111,7 +111,9 @@ import { site } from '../data/site.js';
 
   /* The eighth cell. Ember, so it closes the grid the way the last
      floorplan block closes that one. */
-  .person--cta { background: var(--accent); }
+  /* No cell padding: the anchor supplies its own, so the hover colour
+     covers the whole cell instead of leaving an ember frame round it. */
+  .person--cta { background: var(--accent); padding: 0; align-content: stretch; }
   .cta {
     display: grid;
     align-content: space-between;
@@ -121,7 +123,10 @@ import { site } from '../data/site.js';
     color: var(--accent-on);
     transition: background-color var(--motion-base) var(--ease-standard);
   }
-  .cta:hover, .cta:focus-visible { background: var(--accent-active); }
+  /* Hover traverses UP the ramp; --accent-active is the pressed state
+     and reads as a press, not a hover, when used here. */
+  .cta:hover, .cta:focus-visible { background: var(--accent-hover); }
+  .cta:active { background: var(--accent-active); }
   .cta__title { font-size: var(--text-lg); line-height: var(--leading-lg); }
   .cta__line { font-size: var(--text-sm); }
   .cta__go { margin-top: auto; padding-top: var(--space-4); }

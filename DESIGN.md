@@ -238,7 +238,7 @@ mark cannot drift apart. Regenerate both from the source logo together.
   to media-first single column below 900px. The list marker is the tread,
   reused.
 - **FinalCta** — closing block, primary + cream buttons, with the mascot.
-- **DescentMascot** — a point descending the curve, converging on the minimum.
+- **DescentMascot** — a point climbing the stepped curve to its top tread.
   Appears **once per page, at the final call to action**, after the argument is
   already made; placed there it reads as warmth rather than noise. Unlike the
   looping GIF this pattern is borrowed from, it's SVG and CSS, so

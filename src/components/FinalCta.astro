@@ -27,5 +27,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     gap: var(--space-12); flex-wrap: wrap;
   }
   .final__body { margin-top: var(--space-4); }
+  /* space-between parks the mascot on the right gutter, which reads as
+     abandoned at wide widths. Pull it in off the edge. */
+  .final__inner :global(.descent) { margin-inline-end: clamp(0px, 8vw, 160px); }
   .final__actions { display: flex; gap: var(--space-3); margin-top: var(--space-8); flex-wrap: wrap; }
 </style>

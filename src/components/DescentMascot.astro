@@ -1,19 +1,19 @@
 ---
 /**
- * The mascot: a point descending the loss curve, converging on the minimum.
+ * The mascot: a point climbing a stepped curve, one tread at a time.
  *
  * It appears once per page, at the final call to action, after the argument
  * is already made. Placed there it reads as warmth rather than as noise.
  *
  * Unlike the looping GIF this pattern is borrowed from, it is SVG and CSS,
  * so `prefers-reduced-motion` genuinely stops it. At rest the point sits on
- * the last tread, already converged, which is the correct still frame.
+ * the top tread, already arrived, which is the correct still frame.
  */
-// Ramp runs gold to ember, matching the emblem: light at high loss, dark at
-// the minimum. Reversing it here would make the mascot and the logo disagree
-// about which end of the curve is the good one.
+// Ramp runs gold to ember, matching the emblem: light at the bottom, dark at
+// the top tread the point is heading for. Reversing it here would make the
+// mascot and the logo disagree about which end of the curve is the good one.
 const treads = [0, 1, 2, 3, 4].map(i => ({
-  x: i * 7, y: 4 + i * 3, fill: `var(--ramp-${i + 2})`,
+  x: i * 7, y: 16 - i * 3, fill: `var(--ramp-${i + 2})`,
 }));
 ---
 <svg
@@ -23,10 +23,10 @@ const treads = [0, 1, 2, 3, 4].map(i => ({
   height="110"
   shape-rendering="crispEdges"
   role="img"
-  aria-label="A point descending a stepped curve toward its minimum."
+  aria-label="A point climbing a stepped curve to its top tread."
 >
   {treads.map(t => <rect x={t.x} y={t.y} width="9" height="2" fill={t.fill} />)}
-  <rect class="descent__point" x="3" y="2" width="2" height="2" fill="var(--ink)" />
+  <rect class="descent__point" x="3" y="14" width="2" height="2" fill="var(--ink)" />
 </svg>
 
 <style>
@@ -38,16 +38,16 @@ const treads = [0, 1, 2, 3, 4].map(i => ({
 
   @keyframes descend {
     0%   { transform: translate(0px, 0px); }
-    16%  { transform: translate(7px, 3px); }
-    32%  { transform: translate(14px, 6px); }
-    48%  { transform: translate(21px, 9px); }
-    64%  { transform: translate(28px, 12px); }
-    100% { transform: translate(28px, 12px); }
+    16%  { transform: translate(7px, -3px); }
+    32%  { transform: translate(14px, -6px); }
+    48%  { transform: translate(21px, -9px); }
+    64%  { transform: translate(28px, -12px); }
+    100% { transform: translate(28px, -12px); }
   }
 
   /* The global reduced-motion rule collapses the duration, and `both` holds
-     the final keyframe, so the point comes to rest at the minimum. */
+     the final keyframe, so the point comes to rest on the top tread. */
   @media (prefers-reduced-motion: reduce) {
-    .descent__point { animation: none; transform: translate(28px, 12px); }
+    .descent__point { animation: none; transform: translate(28px, -12px); }
   }
 </style>
