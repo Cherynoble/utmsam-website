@@ -117,11 +117,12 @@ const terms = ['Fall', 'Winter'].map(term => ({
     /* A floor, not a fixed height: a tile that needs more room takes it
        and its row grows, rather than spilling its text over the tile
        below. Spans still tile the grid exactly.
-       ponytail: a fifth of the viewport per row, so a two-row tile is
-       40svh — tight enough that the heading tile is not mostly air. The
-       fold lands mid-tile at this divisor; /6 puts it back on an edge at
-       the cost of another 20%. 140px keeps short viewports sane. */
-    grid-auto-rows: minmax(max(140px, calc((100svh - var(--nav-height)) / 5)), auto);
+       ponytail: the four rows above the fold divide the screen that is
+       left after the section's top margin, so margin + 4 rows = exactly
+       one screen and the fold lands on a tile edge rather than showing a
+       stripe of the fifth row. Any change to --wall-pad re-solves this on
+       its own. 140px keeps short viewports sane. */
+    grid-auto-rows: minmax(max(140px, calc((100svh - var(--nav-height) - var(--wall-pad)) / 4)), auto);
     /* No gap. The gap is what made the tiles read as loose chips; butted
        together the colour edges do the dividing, exactly as they do in
        the block field. */
@@ -131,12 +132,16 @@ const terms = ['Fall', 'Winter'].map(term => ({
      other page's .container draws, so the page keeps its registration
      with the nav — but with no inline gutter, which would put an ivory
      margin back around the wall and undo the butted tiles.
-     The block padding above is the one exception: a row of ivory pushes
-     the wall down so the two tile-rows end exactly at the fold, instead
-     of the third row showing a stripe of ember under them. One row of
-     padding + four rows of tile = one screen. */
+     The block padding above is the one exception: a margin of ivory sets
+     the wall off the nav. It used to be a full grid row tall, which spent
+     a fifth of the viewport on nothing and pushed the first row of copy
+     under the fold on a short screen. It is a plain margin now, and .wall
+     divides what is left by four rather than assuming a fifth — so the
+     fold still lands on a tile edge. The two values are coupled: --wall-pad
+     is read by both. */
   .wall-section {
-    padding-block: calc((100svh - var(--nav-height)) / 5) 0;
+    --wall-pad: clamp(var(--space-8), 4vh, var(--space-16));
+    padding-block: var(--wall-pad) 0;
     max-width: var(--measure);
     margin-inline: auto;
     border-inline: 1px solid var(--border);
