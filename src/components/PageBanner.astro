@@ -47,7 +47,10 @@ const lines = headingLines ?? [heading];
     /* The band bleeds edge to edge, so the 24px container gutter leaves
        the type hanging off the side. Inset it like a poster margin. */
     padding-inline: clamp(var(--space-8), 15vw, 240px);
-    max-width: var(--container-max);
+    /* Same measure as .container, so the banner's block sits on the grid
+       every other section is ruled to. The poster padding above is on top
+       of that measure, not instead of it. */
+    max-width: var(--measure);
     display: grid;
     align-content: center;
   }

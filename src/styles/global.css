@@ -103,7 +103,7 @@ p { text-wrap: pretty; }
    that pads outside the container leaves a gap in the line. */
 .container {
   width: 100%;
-  max-width: var(--container-max);
+  max-width: var(--measure);
   margin-inline: auto;
   padding-inline: var(--gutter);
   border-inline: 1px solid var(--border);

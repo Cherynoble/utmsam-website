@@ -73,6 +73,16 @@
 
   --section-y: 80px;
   --container-max: 1600px;   /* steps to 1760px above 1900px, see below */
+  /* Ground either side of the measure. The container's vertical rules are
+     the grid; flush against the viewport they are invisible, so the ruled
+     page only existed above 1600px. This reserves the margin at every
+     width instead, which is what makes the rules read as edges. */
+  --outer: 40px;
+  /* The measure, as one value. Anything that draws its own vertical rules
+     instead of using .container must use this, or the grid drifts page to
+     page — which is exactly how the wall on /about ended up flush against
+     the viewport while every other page was inset. */
+  --measure: min(var(--container-max), calc(100% - 2 * var(--outer)));
   --gutter: 24px;
   --nav-height: 76px;   /* holds the 48px mark with room either side */
 
@@ -110,8 +120,10 @@
 }
 
 @media (max-width: 1024px) {
-  :root { --section-y: 48px; --gutter: 16px; }
+  :root { --section-y: 48px; --gutter: 16px; --outer: 20px; }
 }
 @media (max-width: 640px) {
-  :root { --section-y: 32px; --gutter: 12px; --nav-height: 68px; }
+  /* No outer ground on a phone: 12px of gutter is the whole margin, and
+     spending another 2x8px on ground costs more than the rules return. */
+  :root { --section-y: 32px; --gutter: 12px; --nav-height: 68px; --outer: 0px; }
 }
