@@ -293,7 +293,7 @@ export const research = {
    ------------------------------------------------------------------ */
 export const team = {
   heading: 'Who runs it.',
-  lede: 'The executive for 2026–27, and the two faculty advisors the society works with.',
+  lede: 'The UTMSAM student executive for 2026–27, and the two UTM faculty advisors the society works with.',
 
   // TODO(exec): add `photo` and `bio` per person as they come in.
   exec: [
@@ -319,7 +319,7 @@ export const team = {
 /* Page-level copy for the events index. */
 export const eventsPage = {
   heading: 'What’s running.',
-  lede: 'Eleven initiatives across the Fall and Winter terms, from an eight-hour hackathon to an hour of hot chocolate before exams.',
+  lede: 'Eleven UTM hackathons, workshops and socials across the Fall and Winter terms, from an eight-hour hackathon to an hour of hot chocolate before exams.',
   note: 'Dates are announced on Instagram and Discord as each event is confirmed.',
 };
 
