@@ -242,6 +242,15 @@ for (const c of chunks) c.t = Math.min(1, c.d / maxD + c.jitter);
     }
 
     function sync() {
+      /* A viewport that has not been laid out yet reports nothing useful,
+         and a media query asked about it answers no. Deciding on that
+         answer switches the takeover off for the life of the page — which
+         is exactly what happens arriving from another page, because the
+         view transition holds the incoming document's first render back
+         until the animation is ready, so this script runs before there is
+         a layout to measure. No resize follows a first layout, so nothing
+         ever revisited the decision. Refuse to decide instead. */
+      if (!window.innerWidth || !window.innerHeight) return;
       const want = wide.matches && !still.matches;
       if (want === on) return;
       on = want;
@@ -251,6 +260,10 @@ for (const c of chunks) c.t = Math.min(1, c.d / maxD + c.jitter);
 
     function frame() {
       queued = false;
+      // Re-asked every frame rather than only at startup: it is two media
+      // query reads and an early return, and it is the difference between
+      // recovering from a bad first measurement and never running again.
+      sync();
       if (!on) return;
 
       /* Live, not cached. The plate has to land on the screen exactly, and
@@ -321,9 +334,15 @@ for (const c of chunks) c.t = Math.min(1, c.d / maxD + c.jitter);
 
     sync();
     addEventListener('scroll', onScroll, { passive: true });
-    addEventListener('resize', () => { sync(); onScroll(); });
-    wide.addEventListener('change', () => { sync(); onScroll(); });
-    still.addEventListener('change', () => { sync(); onScroll(); });
+    addEventListener('resize', onScroll);
+    // pageshow covers the back button restoring the page from the cache
+    // whole, with this script never re-running; load and the rAF cover
+    // arriving before the first layout.
+    addEventListener('pageshow', onScroll);
+    addEventListener('load', onScroll);
+    wide.addEventListener('change', onScroll);
+    still.addEventListener('change', onScroll);
+    requestAnimationFrame(onScroll);
     frame();
   }
 </script>

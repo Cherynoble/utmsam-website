@@ -68,9 +68,32 @@ export function startDrift() {
     requestAnimationFrame(tick);
   }
 
+  /* The observer is the efficient way in, but it is not a reliable way in:
+     it reports once and then only on a change, so a first callback that
+     lands while the incoming document's render is still held back for a
+     view transition says "not intersecting" about a field sitting in plain
+     sight, and nothing ever contradicts it. The field would then hold
+     still until it was scrolled off screen and back.
+
+     So the intersection is also worked out directly, at the couple of
+     moments a page can arrive already looking at the field: restored whole
+     from the back button, or loaded from a link on another page. */
+  function kick() {
+    for (const f of fields) {
+      const r = f.svg.getBoundingClientRect();
+      const seen = r.bottom > 0 && r.top < window.innerHeight
+        && r.right > 0 && r.left < window.innerWidth;
+      if (seen) onScreen.add(f.svg); else onScreen.delete(f.svg);
+    }
+    if (onScreen.size && !running) tick();
+  }
+
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && !running) tick();
+    if (!document.hidden) kick();
   });
+  addEventListener('pageshow', kick);
+  addEventListener('load', kick);
+  requestAnimationFrame(kick);
 }
 
 function build(svg) {
