@@ -299,8 +299,8 @@ export const team = {
   exec: [
     { name: 'Yashika Jain',  role: 'Co-President' },
     { name: 'Sreya Sunil',   role: 'Co-President' },
-    { name: 'Aarav Pradhan', role: 'VP Finance' },
     { name: 'Ericsson Cui',  role: 'VP Technology' },
+    { name: 'Aarav Pradhan', role: 'VP Finance' },
     { name: 'Abdullah Omar', role: 'VP Human Resource' },
     { name: 'Rozhin Ansari', role: 'VP Communication' },
     { name: 'Aryan Goyal',   role: 'VP Events' },
