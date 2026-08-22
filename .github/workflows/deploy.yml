@@ -28,8 +28,11 @@ jobs:
 
       - run: npm ci
 
-      # Regenerates the favicon from the emblem bitmap, then builds.
+      # Builds under the /utmsam-website prefix, kept out of the index.
       - run: npm run build
+        env:
+          # Temporary host. See astro.config.mjs.
+          GH_PAGES: "1"
 
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -16,11 +16,18 @@ npm install
 npm run dev
 ```
 
-Then open **http://localhost:4321/utmsam-website/**.
+Then open **http://localhost:4321/**.
 
-The `/utmsam-website` prefix is required locally. It is the `base` in
-`astro.config.mjs`, set because the site deploys to GitHub Pages under that
-path. Plain `localhost:4321` will 404, which is expected.
+The site's home is `utmsam.sa.utoronto.ca`, and that is what a plain build
+targets. GitHub Pages is a temporary host while that domain still serves the
+old site: the deploy workflow sets `GH_PAGES=1`, which moves the build under
+the `/utmsam-website` prefix and marks it `noindex` so the two copies do not
+compete in search.
+
+**When the domain moves,** delete the flag in three places — the branch in
+`astro.config.mjs`, the `env:` block in `.github/workflows/deploy.yml`, and
+the `temporaryHost` lines in `src/layouts/Base.astro` — and nothing else
+changes.
 
 ```bash
 npm run build     # production build into dist/
@@ -69,7 +76,14 @@ grep -rn "TODO(exec)" src/
 
 At the time of writing these are the Discord invite link, the contact email,
 the faculty advisor titles, the Niagara announcement link, the Project Fixit
-paper link and venue citation, and the Open Graph share image.
+paper link and venue citation, and every figure on `/sponsors`.
+
+**The sponsors page ships with invented numbers.** The membership count, the
+tier prices, and the sponsor list in the `sponsors` block of
+`src/data/content.js` are all placeholders. A sponsor who discovers the
+membership count was made up does not come back, so replace them or delete
+them — the metrics band and the logo wall both disappear when their array is
+empty, which is the correct empty state.
 
 ---
 
@@ -82,8 +96,11 @@ publishes to GitHub Pages.
 **GitHub Actions**. Until that is done the workflow will build successfully
 and then fail at the deploy step.
 
-If the site later moves to a custom domain, change `site` and `base` in
-`astro.config.mjs` and add a `CNAME` file to `public/`.
+Moving to `utmsam.sa.utoronto.ca` means removing the `GH_PAGES` flag (above).
+If it stays on GitHub Pages under that name, a `CNAME` file in `public/` is
+also needed — which requires being able to set a DNS record for the
+subdomain. Confirm that with whoever administers it before planning around
+it.
 
 ---
 
@@ -103,8 +120,19 @@ src/
     tokens.css   every design decision, as custom properties
     global.css   base styles built on those tokens
 scripts/
-  build-favicon.mjs   generates the favicon from the emblem bitmap
+  build-og.mjs        generates public/og.png, the link-share card
 ```
+
+`og.png` is generated and committed, not built. Regenerate it after changing
+the tagline or the mark:
+
+```bash
+node scripts/build-og.mjs
+```
+
+It is deliberately outside `npm run build`: the card renders SVG text, which
+needs a system font, and the GitHub Actions runner has none of them. A
+build-time version would quietly ship a card with no words on it.
 
 `/styleguide` renders the full icon set and the colour ramp. Use it when
 adding icons.
