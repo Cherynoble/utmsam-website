@@ -21,9 +21,8 @@ export const site = {
     'https://www.facebook.com/UTMSAM',
     'https://github.com/UTM-Society-for-Algorithmic-Modelling',
   ],
-  // TODO(exec): replace with the live invite before launch.
-  discord: '#',
-  email: 'utmsam@utoronto.ca', // TODO(exec): confirm the current inbox.
+  discord: 'https://discord.gg/k6cP6PdTFF',
+  email: 'sam@utmsu.ca',
 };
 
 export const nav = [

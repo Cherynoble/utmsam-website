@@ -74,9 +74,9 @@ for its own sake:
 grep -rn "TODO(exec)" src/
 ```
 
-At the time of writing these are the Discord invite link, the contact email,
-the faculty advisor titles, the Niagara announcement link, the Project Fixit
-paper link and venue citation, and every figure on `/sponsors`.
+At the time of writing these are the proposed event months, the faculty
+advisor titles, the Project Fixit paper link and venue citation, the speaker
+and venue names still to be confirmed, and every figure on `/sponsors`.
 
 **The sponsors page ships with invented numbers.** The membership count, the
 tier prices, and the sponsor list in the `sponsors` block of
