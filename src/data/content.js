@@ -162,6 +162,8 @@ export const eventGroups = [
       {
         id: 'beyond-campus', month: 'April', term: 'Winter', name: 'UTMSAM beyond campus.',
         body: 'A conference hosted inside a tech office in downtown Toronto: talks, product deep-dives from practitioners, and a networking mixer.',
+        // The one event not held at UTM. Read by the Event schema on /events.
+        city: 'Toronto',
         // TODO(exec): confirm the host office before publishing a venue.
         note: null,
       },

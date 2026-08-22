@@ -13,6 +13,7 @@ import PageHero from '../components/PageHero.astro';
 import Markitecture from '../components/Markitecture.astro';
 import FinalCta from '../components/FinalCta.astro';
 import { eventGroups, eventsPage } from '../data/content.js';
+import { site } from '../data/site.js';
 
 const blocks = eventGroups.map(g => ({
   href: `#${g.id}`, icon: g.icon, short: g.short, line: g.line,
@@ -26,8 +27,55 @@ const terms = ['Fall', 'Winter'].map(term => ({
   term,
   slots: slots.filter(s => s.term === term),
 }));
+
+/* The same eleven events again, as data. Same trick as the FAQ on /join:
+   the planner above is for people, this is what puts the society in event
+   search results.
+
+   The dates are month-precision because that is as specific as the data
+   honestly is — `month` in content.js is proposed, not booked. Tighten
+   those to real dates and this tightens with them, no change here. */
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'http://localhost:4321');
+const year = { Fall: 2026, Winter: 2027 };
+const monthNumber = {
+  January: '01', February: '02', March: '03', April: '04',
+  September: '09', October: '10', November: '11', December: '12',
+};
+
+const utm = {
+  '@type': 'Place',
+  name: 'University of Toronto Mississauga',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '3359 Mississauga Road',
+    addressLocality: 'Mississauga',
+    addressRegion: 'ON',
+    postalCode: 'L5L 1C6',
+    addressCountry: 'CA',
+  },
+};
+
+const eventSchema = slots.map(s => ({
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  // The planner writes every name as a sentence; a schema name is a title.
+  name: s.name.replace(/\.$/, ''),
+  description: s.body,
+  startDate: `${year[s.term]}-${monthNumber[s.month]}`,
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  url: `${canonical}#${s.id}`,
+  location: s.city
+    ? { '@type': 'Place', name: s.city, address: { '@type': 'PostalAddress', addressLocality: s.city, addressRegion: 'ON', addressCountry: 'CA' } }
+    : utm,
+  organizer: {
+    '@type': 'Organization',
+    name: site.longName,
+    url: canonical.origin + import.meta.env.BASE_URL.replace(/\/$/, '') + '/',
+  },
+}));
 ---
-<Base title="Events" progress description={eventsPage.lede}>
+<Base title="Events" progress description={eventsPage.lede} schema={eventSchema}>
   <PageHero marker="Events" heading={eventsPage.heading} lede={eventsPage.lede} />
 
   <Markitecture heading="Three kinds of thing." blocks={blocks} />
