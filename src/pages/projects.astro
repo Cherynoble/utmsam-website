@@ -1,0 +1,91 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import FinalCta from '../components/FinalCta.astro';
+import PixelIcon from '../components/PixelIcon.astro';
+import { projects } from '../data/content.js';
+---
+<Base
+  title="Projects"
+  description="Supervised project teams at UTMSAM take a research question from proposal through to a written result."
+  progress
+>
+  <PageHero
+    title="Work that leaves the society."
+    lines={['Work that leaves', 'the society.']}
+    lede="Project teams form each term around a question someone wants answered. The aim is a result good enough to submit somewhere."
+  />
+
+  <section class="section container">
+    <h2 class="visually-hidden">Project teams</h2>
+    <div class="projects">
+      {projects.map((p, i) => (
+        <article class="project" id={p.id}>
+          <div class="project__head">
+            <PixelIcon name={p.icon} size={40} decorative />
+            <span class="mono project__status">{p.status}</span>
+          </div>
+          <h3 class="project__name">{p.name}</h3>
+          <p class="body project__body">{p.body}</p>
+          <p class="project__detail">{p.detail}</p>
+          <ul class="project__tags">
+            {p.stack.map(s => <li>{s}</li>)}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="section container proposal">
+    <h2>How a project starts.</h2>
+    <div class="proposal__grid">
+      <div>
+        <h3 class="proposal__step">Bring a question.</h3>
+        <p class="body">Something you actually want the answer to. It does not need to be novel, and it does not need to be in machine learning.</p>
+      </div>
+      <div>
+        <h3 class="proposal__step">Find two or three people.</h3>
+        <p class="body">Most teams form at build sessions rather than through any formal process.</p>
+      </div>
+      <div>
+        <h3 class="proposal__step">Write it up regardless.</h3>
+        <p class="body">A negative result written clearly is worth more than an abandoned promising one.</p>
+      </div>
+    </div>
+  </section>
+
+  <FinalCta
+    heading="Bring us a question."
+    body="Proposals open at the start of each term, and faculty supervision is available for work that needs it."
+  />
+</Base>
+
+<style>
+  .projects { display: grid; gap: var(--space-5); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .project {
+    background: var(--cream);
+    padding: var(--space-6);
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+  }
+  .project__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+  .project__status { color: var(--ink-muted); }
+  .project__name { font-size: var(--text-xl); line-height: var(--leading-xl); }
+  .project__detail { font-size: var(--text-sm); color: var(--ink-muted); }
+  .project__tags { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
+  .project__tags li {
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-2);
+    background: var(--warm-ivory);
+    box-shadow: var(--elev-ring);
+  }
+
+  .proposal { border-top: 1px solid var(--border); }
+  .proposal__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-12); margin-top: var(--space-8); }
+  .proposal__step { font-size: var(--text-lg); line-height: var(--leading-lg); margin-bottom: var(--space-3); }
+
+  @media (max-width: 900px) {
+    .projects, .proposal__grid { grid-template-columns: 1fr; gap: var(--space-6); }
+  }
+</style>

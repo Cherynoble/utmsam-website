@@ -9,8 +9,11 @@
  * so `prefers-reduced-motion` genuinely stops it. At rest the point sits on
  * the last tread, already converged, which is the correct still frame.
  */
+// Ramp runs gold to ember, matching the emblem: light at high loss, dark at
+// the minimum. Reversing it here would make the mascot and the logo disagree
+// about which end of the curve is the good one.
 const treads = [0, 1, 2, 3, 4].map(i => ({
-  x: i * 7, y: 4 + i * 3, fill: `var(--ramp-${6 - i})`,
+  x: i * 7, y: 4 + i * 3, fill: `var(--ramp-${i + 2})`,
 }));
 ---
 <svg

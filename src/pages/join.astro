@@ -1,0 +1,100 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import DescentMascot from '../components/DescentMascot.astro';
+import { site } from '../data/site.js';
+
+const steps = [
+  { title: 'Fill in the form.',        body: 'Name, email, and program. It exists so we can tell you when session times move.' },
+  { title: 'Come to a build session.', body: 'Open room, no agenda. Bring a project, a problem set, or nothing at all.' },
+  { title: 'Pick something to work on.', body: 'A competition round, a workshop series, or a project team. Most people start with whichever is running that week.' },
+];
+
+const questions = [
+  { q: 'Do I need to know machine learning?', a: 'No. Sessions assume no background and start from the beginning of whatever they cover. A good share of members arrive having never trained a model.' },
+  { q: 'Do I need to be in computer science?', a: 'No. The society is open to every UTM student regardless of program or year. Some of the better project questions have come from outside computer science and statistics.' },
+  { q: 'Is there an application?', a: 'No application and no interview for general membership. Executive positions are elected, and directorships are posted when they open.' },
+  { q: 'Does it cost anything?', a: 'No. Membership is free.' },
+];
+---
+<Base
+  title="Join"
+  description="Join the UTM Algorithmic Modeling Society. No application, no prerequisites, open to every UTM student."
+>
+  <PageHero
+    title="Join UTMSAM."
+    lines={['Join UTMSAM.']}
+    lede="Open to every student at UTM. No application, no interview, no prerequisite courses."
+  />
+
+  <section class="section container join__top">
+    <ol class="steps">
+      {steps.map(s => (
+        <li class="steps__item">
+          <h2 class="steps__title">{s.title}</h2>
+          <p class="body">{s.body}</p>
+        </li>
+      ))}
+    </ol>
+    <aside class="join__cta raised">
+      <h2 class="join__cta-heading">Sign up.</h2>
+      <p class="body">Takes about a minute.</p>
+      <a href={site.signupUrl} class="btn btn--primary join__btn">Open the sign-up form</a>
+      <p class="join__alt">
+        Or find us on <a href={site.instagram} class="link">Instagram</a> and
+        <a href={site.discord} class="link">Discord</a>.
+      </p>
+    </aside>
+  </section>
+
+  <section class="section container questions">
+    <h2>Common questions.</h2>
+    <dl class="questions__list">
+      {questions.map(item => (
+        <div class="questions__item">
+          <dt class="questions__q">{item.q}</dt>
+          <dd class="body questions__a">{item.a}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section class="closing">
+    <div class="container closing__inner">
+      <h2>We will see you at a session.</h2>
+      <DescentMascot />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .join__top { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: var(--space-16); align-items: start; }
+
+  .steps { list-style: none; counter-reset: step; display: grid; gap: var(--space-8); }
+  .steps__item { border-top: 1px solid var(--border); padding-top: var(--space-5); counter-increment: step; }
+  .steps__title { font-size: var(--text-xl); line-height: var(--leading-xl); margin-bottom: var(--space-3); }
+  .steps__title::before {
+    content: counter(step, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+    margin-right: var(--space-4);
+  }
+
+  .join__cta { background: var(--cream); padding: var(--space-8); display: grid; gap: var(--space-3); }
+  .join__cta-heading { font-size: var(--text-xl); line-height: var(--leading-xl); }
+  .join__btn { margin-top: var(--space-3); justify-content: center; }
+  .join__alt { font-size: var(--text-sm); color: var(--ink-muted); }
+
+  .questions { border-top: 1px solid var(--border); }
+  .questions__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-12) var(--space-16); margin-top: var(--space-8); }
+  .questions__q { font-size: var(--text-lg); line-height: var(--leading-lg); margin-bottom: var(--space-3); }
+  .questions__a { max-width: 46ch; }
+
+  .closing { background: var(--cream); padding-block: var(--section-y); }
+  .closing__inner { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-12); flex-wrap: wrap; }
+
+  @media (max-width: 900px) {
+    .join__top, .questions__list { grid-template-columns: 1fr; gap: var(--space-8); }
+  }
+</style>
