@@ -11,15 +11,32 @@ const steps = [
 ];
 
 const questions = [
+  { q: 'What is UTMSAM?', a: 'UTMSAM is the University of Toronto Mississauga Society for Algorithmic Modeling, a recognised student society applying machine learning, artificial intelligence, data science, algorithm development and mathematical modeling to real problems. It is run by a student executive of seven with two faculty advisors.' },
+  { q: 'What events does UTMSAM run?', a: 'Eleven initiatives across the Fall and Winter terms, in three kinds: competitions including the EmberHacks hackathon and a campus capture the flag, workshops and talks, and socials. Dates are announced on Instagram and Discord as each event is confirmed.' },
+  { q: 'What backgrounds do members come from?', a: 'Members come from physics, finance, economics, statistics, mathematics and computer science, among others. The society was created to broaden interest in mathematics and statistics at UTM and is open to every program.' },
+  { q: 'What is CODEX?', a: 'CODEX, the Journal of Computing, Data, and Exploration, is the open-access journal UTMSAM runs for undergraduate research at UTM, published on the University of Toronto Libraries platform. Its first volume came out in September 2025 carrying six articles, edited by Prof. Rutwa Engineer.' },
   { q: 'Do I need to know machine learning?', a: 'No. Sessions assume no background and start from the beginning of whatever they cover. A good share of members arrive having never trained a model.' },
   { q: 'Do I need to be in computer science?', a: 'No. The society is open to every UTM student regardless of program or year. Some of the better project questions have come from outside computer science and statistics.' },
   { q: 'Is there an application?', a: 'No application and no interview for general membership. Executive positions are elected, and directorships are posted when they open.' },
   { q: 'Does it cost anything?', a: 'No. Membership is free.' },
 ];
+
+/* The same questions again, as data. Answer engines quote the answer and
+   credit the site; the <dl> below is the same content for people. */
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: questions.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
 ---
 <Base
+  schema={faqSchema}
   title="Join"
-  description="Join the UTM Algorithmic Modeling Society. No application, no prerequisites, open to every UTM student."
+  description="Join the UTM Society for Algorithmic Modeling. No application, no prerequisites, open to every UTM student."
 >
   <PageHero
     title="Join UTMSAM."

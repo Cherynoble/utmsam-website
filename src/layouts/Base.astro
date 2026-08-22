@@ -9,6 +9,7 @@ const {
   title,
   description = site.tagline,
   progress = false,
+  schema,
 } = Astro.props;
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -26,11 +27,11 @@ const orgSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: site.longName,
-  alternateName: site.name,
+  alternateName: site.altNames,
   description: site.tagline,
   url: canonical.origin + base + '/',
   email: site.email,
-  sameAs: [site.instagram],
+  sameAs: [site.instagram, ...site.otherProfiles],
   parentOrganization: {
     '@type': 'CollegeOrUniversity',
     name: 'University of Toronto Mississauga',
@@ -64,6 +65,7 @@ const orgSchema = {
   <meta property="og:image:alt" content={`${site.name} — ${site.tagline}`} />
 
   <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+  {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
 
   <meta name="theme-color" content="#fffaeb" />
 </head>
