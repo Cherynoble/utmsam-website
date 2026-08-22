@@ -76,10 +76,9 @@ export const programs = [
 export const news = [
   {
     title: 'The Niagara supercomputer is receiving a $52 million upgrade, with free access for students working under faculty supervision.',
-    path: '/news/niagara-upgrade',
+    path: 'themedium.ca',
     meta: 'Compute',
-    // TODO(exec): link the UofT announcement and confirm the completion window.
-    href: null,
+    href: 'https://themedium.ca/u-of-t-receives-52-million-to-upgrade-its-niagara-supercomputer/',
   },
   {
     title: 'AI Seminar Series 2026 opens with sessions on model behaviour, evaluation, and the state of AI in games.',
@@ -204,7 +203,10 @@ export const about = {
 
   /* The page is a wall of tiles, so everything here is one line long.
      A tile that needs three paragraphs is the wrong tile. */
-  what: { heading: 'What we are.' },
+  what: {
+    heading: 'What we are.',
+    line: 'Work at the intersection of technology and creativity.',
+  },
 
   audience: {
     heading: 'You do not need a background in any of this.',
@@ -290,8 +292,8 @@ export const team = {
     { name: 'Yashika Jain',  role: 'Co-President' },
     { name: 'Sreya Sunil',   role: 'Co-President' },
     { name: 'Aarav Pradhan', role: 'VP Finance' },
-    { name: 'Abdullah Omar', role: 'VP Human Resource' },
     { name: 'Ericsson Cui',  role: 'VP Technology' },
+    { name: 'Abdullah Omar', role: 'VP Human Resource' },
     { name: 'Rozhin Ansari', role: 'VP Communication' },
     { name: 'Aryan Goyal',   role: 'VP Events' },
   ],
