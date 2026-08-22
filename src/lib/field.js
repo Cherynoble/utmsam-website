@@ -86,7 +86,31 @@ export function buildField(w = 26, h = 15, seed = 9091) {
     [cx, cy] = best;
   }
 
-  return { cells, path, w, h };
+  /* The elevation, as a continuous surface.
+     `cells` is the surface quantised to six bands, which is what gets
+     drawn; this is the same surface before the quantiser, expressed in
+     the same units the bands are numbered in — 6 at the floor of the
+     basin, 1 at the brightest rim. The client needs it for two things
+     the bands cannot give it: a gradient smooth enough to walk down
+     (six integers is mostly plateau, and a walk on a plateau stalls on
+     its first step), and a base for the drift that does not re-quantise
+     an already-quantised value.
+
+     Ranked, not scaled linearly, for the same reason the bands are cut
+     on quantiles: this surface is mostly rim, and a linear map spends
+     four of its six levels on ground the eye reads as one colour. */
+  const lowerBound = v => {
+    let lo = 0, hi = sorted.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (sorted[mid] < v) lo = mid + 1; else hi = mid;
+    }
+    return lo;
+  };
+  const last = sorted.length - 1;
+  const heights = grid.map(row => row.map(v => 6 - 5 * (lowerBound(v) / last)));
+
+  return { cells, path, heights, w, h };
 }
 
 /**
