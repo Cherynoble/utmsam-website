@@ -39,10 +39,11 @@ const mailto = `mailto:${site.email}?subject=Sponsoring%20UTMSAM`;
    against a term of talks wants to see. Stacked, every column would fill
    from the top and the shape would carry no information at all. */
 const KIND_TINT = { Competition: 6, Talk: 2, Workshop: 4 };
-const MONTHS = [
-  ['S', 'September'], ['O', 'October'], ['N', 'November'], ['D', 'December'],
-  ['J', 'January'], ['F', 'February'], ['M', 'March'], ['A', 'April'],
-];
+// The academic year in order. The axis prints the first three letters of
+// each, which is unambiguous where a single initial is not: J, M and A each
+// name two months of the eight.
+const MONTHS = ['September', 'October', 'November', 'December',
+  'January', 'February', 'March', 'April'];
 const kinds = eventGroups.map(g => g.kind);
 const eventCount = eventGroups.reduce((n, g) => n + g.items.length, 0);
 
@@ -51,7 +52,7 @@ const eventCount = eventGroups.reduce((n, g) => n + g.items.length, 0);
 // dropping one.
 const grid = eventGroups.map(g => ({
   kind: g.kind,
-  cells: MONTHS.map(([, name]) => g.items.filter(i => i.month === name)),
+  cells: MONTHS.map(name => g.items.filter(i => i.month === name)),
 }));
 
 const spellCount = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight',
@@ -81,7 +82,7 @@ const spellCount = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven
           <figcaption class="marker year__cap">{spellCount} events, September to April</figcaption>
 
           <div class="year__grid" style={`--rows:${grid.length}`}>
-            {grid.map(row => MONTHS.map(([, name], i) => {
+            {grid.map(row => MONTHS.map((name, i) => {
               const evs = row.cells[i];
               return evs.length === 0
                 ? <div class="year__cell" aria-hidden="true"></div>
@@ -94,7 +95,7 @@ const spellCount = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven
           </div>
 
           <ol class="year__axis" aria-hidden="true">
-            {MONTHS.map(([letter]) => <li>{letter}</li>)}
+            {MONTHS.map(name => <li>{name.slice(0, 3)}</li>)}
           </ol>
 
           <ul class="year__key">
@@ -237,7 +238,7 @@ const spellCount = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven
     height: 100%;
     padding-block: clamp(var(--space-8), 5vh, 72px) var(--space-12);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 460px);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 528px);
     gap: var(--space-16);
     align-items: stretch;
   }
@@ -251,7 +252,7 @@ const spellCount = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven
      labels stay put while the blocks take the slack the floored screen
      leaves — the empty space is spent on the year rather than pooled
      above the headline. */
-  .year { display: grid; grid-template-rows: auto auto auto auto; gap: var(--space-2); align-content: center; }
+  .year { display: grid; grid-template-rows: auto auto auto auto; gap: var(--space-1); align-content: center; }
   .year__cap { margin-bottom: var(--space-4); }
   .year__cap { color: var(--ink-muted); }
 
@@ -285,11 +286,13 @@ const spellCount = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven
   [data-tint='6'] { background: var(--ramp-6); }
 
   .year__axis { list-style: none; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: var(--space-2); }
-  .year__axis li { text-align: center; font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-muted); }
+  /* line-height 1 so the label hugs the square it names; the 18px line
+     box the 12px type sits in was adding leading on top of the row gap. */
+  .year__axis li { text-align: center; font-family: var(--font-mono); font-size: var(--text-xs); line-height: 1; padding-top: var(--space-1); color: var(--ink-muted); }
 
   /* The key doubles as the row legend, so it stacks in row order rather
      than running as a flat strip. */
-  .year__key { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin-top: var(--space-2); }
+  .year__key { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin-top: var(--space-4); }
   .year__keyitem { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--ink-muted); }
   .year__swatch { width: 12px; height: 12px; flex: none; }
 
