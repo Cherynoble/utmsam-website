@@ -1,0 +1,165 @@
+---
+/**
+ * The editorial page.
+ *
+ * Deliberately a different page type from /events. That one is a ruled
+ * table; this one is a document: a centred opening, a single prose
+ * column at reading measure, a sidebar card that stays with you, and a
+ * numbered index of the volume. Nothing here is a card grid, and there
+ * is no floorplan — three blocks pointing at three sections of a short
+ * page would be furniture.
+ */
+import Base from '../layouts/Base.astro';
+import PageBanner from '../components/PageBanner.astro';
+import FinalCta from '../components/FinalCta.astro';
+import Btn from '../components/Btn.astro';
+import PixelIcon from '../components/PixelIcon.astro';
+import { research } from '../data/content.js';
+
+const { codex, fixit } = research;
+---
+<Base title="Research" progress description={research.lede}>
+  <PageBanner
+    marker="Research"
+    headingLines={research.headingLines}
+    lede={research.heroLede}
+    seed={90125}
+  >
+    <div class="banner__actions">
+      <Btn href={codex.url} variant="cream">Read the journal</Btn>
+      <a class="link-arrow banner__link" href="#articles">Vol. 1 No. 1 <PixelIcon name="chevron" size={12} decorative /></a>
+    </div>
+  </PageBanner>
+
+  <section class="section container">
+    <div class="doc">
+      <div class="doc__body">
+        <h2 id="codex">{codex.name}</h2>
+        {codex.body.map(p => <p class="body doc__p">{p}</p>)}
+
+        <h2 id="articles" class="doc__h">{codex.volume.label}</h2>
+        <p class="body doc__p">{codex.volume.theme}</p>
+
+        <ol class="articles">
+          {codex.articles.map((a, i) => (
+            <li class="article">
+              <span class="mono article__index">{String(i + 1).padStart(2, '0')}</span>
+              <div>
+                <h3 class="article__title">{a.title}</h3>
+                <p class="mono article__authors">{a.authors}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <!-- Stays with you down the page: what the journal is, in the
+           margin, while the column talks about what is in it. -->
+      <aside class="doc__aside">
+        <div class="jcard">
+          <div class="jcard__top">
+            <PixelIcon name="d-journal" size={40} decorative />
+            <p class="jcard__full">{codex.fullName}</p>
+          </div>
+          <ul class="chip-row">
+            <li><span class="chip">Open access</span></li>
+            <li><span class="chip">Peer reviewed</span></li>
+            <li><span class="chip">Undergraduate</span></li>
+          </ul>
+          <dl class="jcard__meta">
+            <div><dt class="mono">Volume</dt><dd>{codex.volume.label}</dd></div>
+            <div><dt class="mono">Published</dt><dd>{codex.volume.published}</dd></div>
+            <div><dt class="mono">Articles</dt><dd>{codex.articles.length}</dd></div>
+          </dl>
+          <Btn href={codex.url} variant="cream">Read the journal</Btn>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Prior work, as a badge butted against a panel. -->
+  <section class="section container" id="fixit">
+    <div class="prior">
+      <div class="prior__badge"><PixelIcon name="beaker" size={40} decorative /></div>
+      <div class="prior__panel">
+        <span class="chip">{fixit.status}</span>
+        <h2 class="prior__name">{fixit.name}</h2>
+        <p class="body">{fixit.body}</p>
+      </div>
+    </div>
+  </section>
+
+  <FinalCta />
+</Base>
+
+<style>
+  /* A document, not a full-width layout. The reading column is bound to
+     its measure and the pair is centred, so the gap between prose and
+     sidebar stays a gutter instead of becoming 800px of dead ground. */
+  .doc {
+    display: grid;
+    grid-template-columns: minmax(0, 64ch) minmax(260px, 320px);
+    gap: var(--space-12);
+    justify-content: center;
+    align-items: start;
+  }
+  .doc__body > h2 { max-width: 20ch; }
+  .doc__h {
+    margin-top: var(--space-12);
+    font-size: var(--text-xl);
+    line-height: var(--leading-xl);
+  }
+  .doc__p { margin-top: var(--space-4); max-width: 62ch; }
+
+  .doc__aside { position: sticky; top: calc(var(--nav-height) + var(--space-8)); }
+  .jcard {
+    background: var(--cream);
+    --border: var(--border-cream);
+    padding: var(--space-6);
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+  }
+  .jcard__top { display: grid; grid-template-columns: 40px 1fr; gap: var(--space-4); align-items: center; }
+  .jcard__full { font-size: var(--text-base); line-height: var(--leading-body); }
+  .jcard__meta { display: grid; gap: var(--space-2); width: 100%; }
+  .jcard__meta > div { display: flex; justify-content: space-between; gap: var(--space-4); border-top: 1px solid var(--border); padding-top: var(--space-2); }
+  .jcard__meta dt { color: var(--ink-muted); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* A citation index, not a card grid: a citation wants a line under
+     it, not a box. */
+  .articles { list-style: none; margin-top: var(--space-8); border-top: 1px solid var(--border); }
+  .article {
+    display: grid; grid-template-columns: 48px 1fr; gap: var(--space-5);
+    padding-block: var(--space-5);
+    border-bottom: 1px solid var(--border);
+  }
+  .article__index { color: var(--ink-muted); }
+  .article__title { font-size: var(--text-lg); line-height: var(--leading-lg); max-width: 52ch; }
+  .article__authors { color: var(--ink-muted); margin-top: var(--space-2); }
+
+  .prior { display: flex; align-items: stretch; }
+  .prior__badge {
+    background: var(--accent); color: var(--accent-on);
+    display: grid; place-items: center;
+    padding: var(--space-5);
+    flex: none;
+  }
+  .prior__panel {
+    background: var(--cream);
+    --border: var(--border-cream);
+    padding: var(--space-6);
+    display: grid; justify-items: start; gap: var(--space-3);
+    align-content: center;
+  }
+  .prior__name { font-size: var(--text-xl); line-height: var(--leading-xl); }
+  .prior__panel .body { max-width: 62ch; }
+
+  @media (max-width: 900px) {
+    .doc { grid-template-columns: 1fr; gap: var(--space-8); }
+    .doc__aside { position: static; }
+    .article { grid-template-columns: 32px 1fr; gap: var(--space-4); }
+    .prior { flex-direction: column; align-items: stretch; }
+    .prior__badge { justify-items: center; }
+  }
+</style>

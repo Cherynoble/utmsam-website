@@ -1,0 +1,32 @@
+---
+/**
+ * The field as a surface, not as a figure. Same block unit and same six
+ * ramp steps as BlockField, but noise-driven and sized to be sat on: the
+ * whole grid stretches to fill its positioned parent rather than
+ * cropping, so the composition reads the same at any band size.
+ */
+import { buildNoiseField } from '../lib/field.js';
+import { PALETTE } from '../lib/pixel.js';
+
+const { seed = 90125, w = 33, h = 14, text, class: klass = '' } = Astro.props;
+const { cells } = buildNoiseField(w, h, seed, 0.38, text);
+---
+<svg
+  class={`hero-field ${klass}`.trim()}
+  viewBox={`0 0 ${w} ${h}`}
+  shape-rendering="crispEdges"
+  preserveAspectRatio="none"
+  aria-hidden="true"
+>
+  {cells.map((row, y) => row.map((ch, x) => (
+    <rect x={x} y={y} width="1" height="1" fill={PALETTE[ch]} vector-effect="non-scaling-stroke" />
+  )))}
+</svg>
+
+<style>
+  .hero-field { position: absolute; inset: 0; width: 100%; height: 100%; }
+  /* The grid is drawn, not implied — same reason the containers carry
+     their own rules. Non-scaling so the line stays 1px however far the
+     cells stretch. */
+  .hero-field rect { stroke: rgba(31, 31, 31, 0.14); stroke-width: 1; }
+</style>

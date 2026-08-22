@@ -2,8 +2,8 @@
 import { buildField } from '../lib/field.js';
 import { PALETTE } from '../lib/pixel.js';
 
-const { w = 26, h = 15 } = Astro.props;
-const { cells, path } = buildField(w, h);
+const { w = 26, h = 15, seed = 9091, caption = 'A loss surface. The dark path steps downhill to the minimum.' } = Astro.props;
+const { cells, path } = buildField(w, h, seed);
 const onPath = new Set(path.map(([x, y]) => `${x},${y}`));
 
 // The resting point, clamped so the 2x2 marker stays on the integer grid
@@ -19,7 +19,7 @@ for (let y = 0; y < h; y++) {
   }
 }
 ---
-<figure class="field">
+<figure class="field tech-dot tech-dot--tr">
   <svg
     viewBox={`0 0 ${w} ${h}`}
     shape-rendering="crispEdges"
@@ -32,11 +32,13 @@ for (let y = 0; y < h; y++) {
     <rect x={endX} y={endY} width="2" height="2" fill="var(--ink)" />
   </svg>
   <figcaption id="field-caption" class="mono field__caption">
-    A loss surface. The dark path steps downhill to the minimum.
+    {caption}
   </figcaption>
 </figure>
 
 <style>
+  /* The dot sits on the top-right corner of the plate, which is the
+     first grid row, so the figure itself is the right anchor. */
   .field { display: grid; gap: var(--space-3); }
   .field svg {
     width: 100%;

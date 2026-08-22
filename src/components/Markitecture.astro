@@ -1,0 +1,93 @@
+---
+/**
+ * The floorplan. Three blocks of the ramp, bottom-aligned at unequal
+ * heights so the silhouette steps, abutting so that each block after
+ * the first draws the single line between them.
+ *
+ * Capped at three deliberately: the ramp assignment and the height
+ * stagger are tuned for three, and a fourth needs a second row and a
+ * different set of decisions.
+ */
+import PixelIcon from './PixelIcon.astro';
+
+const { heading, blocks } = Astro.props;
+if (blocks.length !== 3) {
+  throw new Error(`Markitecture: expected 3 blocks, got ${blocks.length}`);
+}
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const to = h => (h.startsWith('#') || h.startsWith('http') ? h : `${base}${h}`);
+---
+<section class="section--tight container">
+  {heading && <h2 class="mk__heading">{heading}</h2>}
+  <div class="mk">
+    {blocks.map((b, i) => (
+      <a class="mk__block tech-dot" href={to(b.href)} style={`--i:${i}`}>
+        <span class="mk__chip"><PixelIcon name={b.icon} size={32} decorative /></span>
+        <h3 class="mk__title">{b.short}</h3>
+        <p class="mk__line">{b.line}</p>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .mk__heading { max-width: 18ch; }
+
+  .mk {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr;
+    align-items: end;
+    margin-top: var(--space-8);
+  }
+  .mk__block {
+    display: grid;
+    align-content: end;
+    gap: var(--space-3);
+    padding: var(--space-6);
+    background: var(--fill);
+    transition: background-color var(--motion-base) var(--ease-standard);
+  }
+  /* Abutting blocks share one line: each after the first draws its own
+     left edge. Inset outlines would draw it twice. */
+  .mk__block + .mk__block { border-left: 1px solid var(--ink); }
+  .mk__block:hover, .mk__block:focus-visible { background: var(--fill-hover); }
+
+  /* Hover traverses the ramp, never lighten(). */
+  .mk__block:nth-child(1) { --fill: var(--ramp-2); --fill-hover: var(--ramp-3); min-height: 208px; color: var(--ink); }
+  .mk__block:nth-child(2) { --fill: var(--ramp-4); --fill-hover: var(--ramp-5); min-height: 264px; color: var(--ink); }
+  .mk__block:nth-child(3) { --fill: var(--ramp-6); --fill-hover: var(--accent-active); min-height: 232px; color: var(--accent-on); }
+
+  /* The chip keeps every icon on ivory, so an icon's own colours read
+     the same on gold and on ember. */
+  .mk__chip {
+    width: 40px; height: 40px;
+    display: grid; place-items: center;
+    background: var(--warm-ivory);
+  }
+  .mk__title { font-size: var(--text-lg); line-height: var(--leading-lg); }
+  .mk__line { max-width: 30ch; }
+
+  /* Blocks fall in and land, 60ms apart. Transform only, from a painted
+     state, so the section is never blank without JS. */
+  @media (prefers-reduced-motion: no-preference) {
+    .mk__block {
+      animation: mk-fall 500ms var(--ease-standard) backwards;
+      animation-delay: calc(var(--i, 0) * 60ms);
+    }
+  }
+  @keyframes mk-fall {
+    0%   { transform: translateY(-120px); }
+    50%  { transform: translateY(0) scaleY(1); }
+    65%  { transform: translateY(0) scaleY(0.95); }
+    80%  { transform: translateY(0) scaleY(1.02); }
+    to   { transform: translateY(0) scaleY(1); }
+  }
+
+  @media (max-width: 900px) {
+    .mk { grid-template-columns: 1fr; align-items: stretch; }
+    .mk__block:nth-child(1),
+    .mk__block:nth-child(2),
+    .mk__block:nth-child(3) { min-height: 0; }
+    .mk__block + .mk__block { border-left: 0; border-top: 1px solid var(--ink); }
+  }
+</style>

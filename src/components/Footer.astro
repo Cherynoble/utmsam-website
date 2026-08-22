@@ -17,7 +17,7 @@ const year = new Date().getFullYear();
       <h2 class="marker">Site</h2>
       <ul>
         {nav.map(i => <li><a href={`${base}${i.href}`} class="link">{i.label}</a></li>)}
-        <li><a href={`${base}/join`} class="link">Join</a></li>
+        <li><a href={site.signupUrl} class="link">Join</a></li>
         <li><a href={`${base}/styleguide`} class="link">Style guide</a></li>
       </ul>
     </nav>
@@ -39,7 +39,9 @@ const year = new Date().getFullYear();
 </footer>
 
 <style>
-  .site-footer { margin-top: var(--section-y); background: var(--cream); }
+  /* Retint the hairline: the ivory border disappears on cream and
+     the container rules would stop at the footer. */
+  .site-footer { margin-top: var(--section-y); background: var(--cream); --border: var(--border-cream); }
   .site-footer__inner {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;

@@ -1,0 +1,20 @@
+---
+/**
+ * The conveyor button. Markup exists only to give the label and the two
+ * chevrons something to slide inside; all motion is in .btn in global.css.
+ * Both chevrons are the same bitmap, inheriting the button's text colour
+ * through the 'c' palette key.
+ */
+import PixelIcon from './PixelIcon.astro';
+
+const { href, variant = 'primary', class: klass = '', ...rest } = Astro.props;
+---
+<a href={href} class={`btn btn--${variant} ${klass}`.trim()} {...rest}>
+  <span class="btn__icon btn__icon--in" aria-hidden="true">
+    <PixelIcon name="chevron" size={16} decorative />
+  </span>
+  <span class="btn__label"><slot /></span>
+  <span class="btn__icon btn__icon--out" aria-hidden="true">
+    <PixelIcon name="chevron" size={16} decorative />
+  </span>
+</a>

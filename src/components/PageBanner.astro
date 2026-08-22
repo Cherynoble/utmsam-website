@@ -1,0 +1,71 @@
+---
+/**
+ * The sub-page hero: a full-bleed band of the noise field with the title
+ * set on it in ivory. Every page below the homepage opens this way, which
+ * is what keeps the homepage's BlockField hero reading as the exception.
+ *
+ * `seed` is the only thing that differs page to page — one number, one
+ * field, stable across builds.
+ */
+import HeroField from './HeroField.astro';
+import BlockStrip from './BlockStrip.astro';
+
+const { marker, heading, headingLines, lede, seed = 90125 } = Astro.props;
+const lines = headingLines ?? [heading];
+---
+<section class="banner">
+  <!-- Two fields, one per orientation. The cells stretch to fill the
+       band, so a landscape grid squeezed into a phone viewport turns
+       every block into a sliver; the portrait grid is the same
+       generator at the aspect it is going to be shown at. -->
+  <HeroField class="hero-field--wide" seed={seed} />
+  <HeroField class="hero-field--tall" seed={seed} w={15} h={24} text={[0.95, 0.3, 0.78]} />
+  <div class="container banner__inner">
+    <div class="banner__text">
+      <p class="marker">{marker}</p>
+      <h1>{lines.map((line, i) => <Fragment>{i > 0 && <br />}{line}</Fragment>)}</h1>
+      {lede && <p class="lede banner__lede">{lede}</p>}
+      <slot />
+    </div>
+  </div>
+</section>
+<BlockStrip />
+
+<style>
+  /* The band is the field. Text sits on it in ivory, and the container
+     rules are dropped rather than retinted: a hairline over a block
+     field reads as a seam, not as a measure. */
+  .banner { position: relative; isolation: isolate; color: var(--warm-ivory); }
+  .banner :global(.hero-field--tall) { display: none; }
+  .banner__inner { position: relative; border-inline-color: transparent; }
+  /* The banner takes the fold, same floor as the homepage hero: a field
+     that stops halfway down the screen reads as a wide image rather than
+     as the page's ground. */
+  .banner__inner {
+    min-height: calc(100dvh - var(--nav-height));
+    padding-block: clamp(var(--space-12), 8vh, 96px);
+    /* The band bleeds edge to edge, so the 24px container gutter leaves
+       the type hanging off the side. Inset it like a poster margin. */
+    padding-inline: clamp(var(--space-8), 15vw, 240px);
+    max-width: var(--container-max);
+    display: grid;
+    align-content: center;
+  }
+  /* The lines are broken by hand, so balancing them is the browser
+     re-ragging copy that is already set. */
+  .banner__text h1 { margin-top: var(--space-5); text-wrap: normal; }
+  .banner__lede { margin-top: var(--space-6); max-width: 44ch; }
+  /* A 12px marker under an 82px headline reads as a caption that got
+     lost. On the banner it is a label, so it is set at body size. */
+  .banner .marker { color: var(--warm-ivory); font-size: var(--text-base); letter-spacing: 0.12em; }
+  .banner :global(.banner__actions) {
+    display: flex; gap: var(--space-6); align-items: center;
+    margin-top: var(--space-8); flex-wrap: wrap;
+  }
+  .banner :global(.banner__link) { text-decoration: underline; text-underline-offset: 4px; }
+
+  @media (max-width: 760px) {
+    .banner :global(.hero-field--wide) { display: none; }
+    .banner :global(.hero-field--tall) { display: block; }
+  }
+</style>

@@ -12,6 +12,15 @@ html {
   scroll-padding-top: calc(var(--nav-height) + var(--space-8));
 }
 
+/* Hide the scrollbar. Scrolling itself is untouched: wheel, trackpad,
+   keys, and the scroll API all behave normally, and only the drawn bar
+   goes. macOS overlay scrollbars are already hidden until you scroll;
+   this is what makes Windows and Linux match. The position it used to
+   report is still on screen: ReadingProgress stays, which is why it is
+   informational rather than decorative. */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar { display: none; }
+
 body {
   background: var(--warm-ivory);
   color: var(--ink);
@@ -56,11 +65,17 @@ p { text-wrap: pretty; }
 .body { max-width: 62ch; color: var(--ink-muted); }
 
 /* Uppercase is a signage device, not a style. Buttons and small
-   section markers only. */
+   section markers only.
+   Mono, because a technical label should look measured rather than
+   styled — it is the same instinct as the path-as-caption device,
+   and it lets a marker sit against a rule without competing with
+   the heading under it. System mono, not a webfont: the site ships
+   no font files and a section label is not worth the first one. */
 .marker {
+  font-family: var(--font-mono);
   font-size: var(--text-xs);
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   color: var(--ink-muted);
 }
 
@@ -78,14 +93,23 @@ p { text-wrap: pretty; }
 /* ============================================================
    Layout
    ============================================================ */
+/* The ruled grid. Every container carries its own vertical rules,
+   so the measure is drawn rather than implied, and sections rule
+   off horizontally. The lines do the work whitespace would
+   otherwise have to, which is what lets sections sit close
+   together without running into each other.
+   For the rules to read as continuous, block padding belongs on
+   the container, not on a full-bleed wrapper around it — a wrapper
+   that pads outside the container leaves a gap in the line. */
 .container {
   width: 100%;
   max-width: var(--container-max);
   margin-inline: auto;
   padding-inline: var(--gutter);
+  border-inline: 1px solid var(--border);
 }
-.section { padding-block: var(--section-y); }
-.section--tight { padding-block: calc(var(--section-y) * 0.6); }
+.section { padding-block: var(--section-y); border-top: 1px solid var(--border); }
+.section--tight { padding-block: calc(var(--section-y) * 0.6); border-top: 1px solid var(--border); }
 .rule { border: 0; border-top: 1px solid var(--border); }
 
 .stack > * + * { margin-top: var(--space-4); }
@@ -107,9 +131,11 @@ a { color: inherit; text-decoration: none; }
 }
 .link:hover, .link:focus-visible { background-size: 100% 1px; }
 
+/* The inline cousin of the button conveyor: no clipping, one chevron,
+   and it travels 4px rather than 3 so the glyph lands back on the grid. */
 .link-arrow { display: inline-flex; align-items: center; gap: var(--space-2); }
 .link-arrow svg { transition: transform var(--motion-fast) var(--ease-standard); }
-.link-arrow:hover svg { transform: translateX(3px); }
+.link-arrow:hover svg, .link-arrow:focus-visible svg { transform: translateX(4px); }
 
 :focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
 
@@ -130,14 +156,37 @@ a { color: inherit; text-decoration: none; }
    tight, not chunky. They do not shout.
    ============================================================ */
 .btn {
+  position: relative; overflow: hidden;
   display: inline-flex; align-items: center; gap: var(--space-2);
   font: 400 var(--text-base) / 1.5 var(--font-body);
+  letter-spacing: 0.01em;
   padding: var(--space-3) var(--space-5);
   border: 0; border-radius: var(--radius-sm);
   cursor: pointer; white-space: nowrap;
   transition: background-color var(--motion-fast) var(--ease-standard),
               color var(--motion-fast) var(--ease-standard);
 }
+
+/* The conveyor. On hover the trailing chevron leaves to the right, the
+   label follows it, and a second chevron enters from the left to take
+   its place. overflow: hidden does the clipping, so nothing moves the
+   button itself: the geometry stays put and only its contents travel.
+   Travel distances are multiples of 4px, the pixel module. */
+.btn__icon { display: inline-flex; flex: none; }
+.btn__icon, .btn__label {
+  transition: transform var(--motion-base) var(--ease-standard);
+}
+.btn__icon--in {
+  position: absolute; left: var(--space-3);
+  transform: translateX(-40px);
+  transition-delay: 50ms;
+}
+.btn:hover .btn__icon--out,
+.btn:focus-visible .btn__icon--out { transform: translateX(40px); }
+.btn:hover .btn__label,
+.btn:focus-visible .btn__label { transform: translateX(var(--space-6)); }
+.btn:hover .btn__icon--in,
+.btn:focus-visible .btn__icon--in { transform: translateX(0); }
 .btn--primary { background: var(--ink); color: var(--white); }
 .btn--primary:hover { background: var(--accent); }
 .btn--primary:active { background: var(--accent-active); }
@@ -164,6 +213,47 @@ a { color: inherit; text-decoration: none; }
 a.card:hover, a.card:focus-visible { background: var(--cream); }
 
 .card--flat { box-shadow: none; border-top: 1px solid var(--border); padding-inline: 0; }
+
+/* ============================================================
+   Mono chips. A marker with a rule around it, for a label that has
+   to read as a discrete tag rather than as a small heading. Inherits
+   the retinted --border on cream, like everything else.
+   ============================================================ */
+.chip {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  border: 1px solid var(--border);
+  padding: 2px var(--space-2);
+  display: inline-block;
+  white-space: nowrap;
+}
+.chip-row { display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; }
+
+/* ============================================================
+   Tech dots. A 4px registration mark at the corner of a drawn
+   block, on the same module as the pixel grid. It is a drafting
+   mark: it stops meaning anything if it goes on everything, so
+   it is reserved for the floorplan blocks and the hero field.
+   currentColor so it reads on an ember block and on ivory alike.
+   ============================================================ */
+.tech-dot { position: relative; }
+.tech-dot::after {
+  content: '';
+  position: absolute; top: -2px; left: -2px; z-index: 2;
+  width: 4px; height: 4px;
+  background: currentColor;
+}
+.tech-dot--tr::after { left: auto; right: -2px; }
+
+/* Cards as grid cells, not as floating objects. A row of ringed cards
+   draws its dividing line twice; here the 1px gaps expose the grid's own
+   background and each line is drawn once. Same reason .container rules
+   itself rather than spacing its neighbours apart. */
+.card-grid { display: grid; gap: 1px; background: var(--border); }
+.card-grid > .card { box-shadow: none; border-radius: 0; }
 
 .raised { box-shadow: var(--elev-raised); border-radius: var(--radius-sm); }
 

@@ -5,6 +5,8 @@ import BlockStrip from '../components/BlockStrip.astro';
 import PinnedUnit from '../components/PinnedUnit.astro';
 import PixelIcon from '../components/PixelIcon.astro';
 import FinalCta from '../components/FinalCta.astro';
+import Markitecture from '../components/Markitecture.astro';
+import Btn from '../components/Btn.astro';
 import { pillars, programs, news } from '../data/content.js';
 import { site } from '../data/site.js';
 
@@ -26,8 +28,8 @@ const [lead, ...rest] = news;
           and mathematical modeling to real problems.
         </p>
         <div class="hero__actions">
-          <a href={site.signupUrl} class="btn btn--primary">Join UTMSAM</a>
-          <a href={`${base}/projects`} class="btn btn--cream">See our projects</a>
+          <Btn href={site.signupUrl}>Join UTMSAM</Btn>
+          <Btn href={`${base}/research`} variant="cream">See our research</Btn>
         </div>
       </div>
       <div class="hero__media"><BlockField /></div>
@@ -39,13 +41,13 @@ const [lead, ...rest] = news;
   <!-- Proof of momentum -->
   <section class="section container">
     <h2 class="marker">Recent</h2>
-    <div class="news">
+    <div class="news card-grid">
       <a class="card news__lead" href={lead.href ?? undefined} aria-disabled={!lead.href}>
         <span class="mono news__meta">{lead.meta}</span>
         <h3>{lead.title}</h3>
         <span class="path">{lead.path}</span>
       </a>
-      <div class="news__rest">
+      <div class="news__rest card-grid">
         {rest.map(n => (
           <a class="card" href={`${base}${n.href}`}>
             <span class="mono news__meta">{n.meta}</span>
@@ -58,9 +60,10 @@ const [lead, ...rest] = news;
   </section>
 
   <!-- The map, then the depth -->
-  <section class="section--tight container">
-    <h2 class="map__heading">Three things happen here.</h2>
-  </section>
+  <Markitecture
+    heading="Three things happen here."
+    blocks={pillars.map(p => ({ href: `#${p.id}`, icon: p.icon, short: p.short, line: p.line }))}
+  />
 
   <div class="container">
     {pillars.map((p, i) => <PinnedUnit pillar={p} index={i} />)}
@@ -104,8 +107,18 @@ const [lead, ...rest] = news;
 </Base>
 
 <style>
-  .hero { padding-block: clamp(var(--space-8), 6vh, 88px) var(--section-y); }
+  /* Padding sits on the container, not on .hero, so the container's
+     vertical rules run the full height of the section.
+
+     The hero takes the screen as a floor, not as a fixed height: dvh
+     rather than vh, so mobile browser chrome retracting does not leave
+     the fold in the wrong place, and min-height rather than height, so
+     a short window or a long headline grows the section instead of
+     clipping it. Below the stacking breakpoint the content is always
+     taller than the screen anyway, and the floor stops applying. */
   .hero__inner {
+    min-height: calc(100dvh - var(--nav-height));
+    padding-block: clamp(var(--space-8), 6vh, 88px) var(--section-y);
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
     gap: var(--space-16);
@@ -114,20 +127,20 @@ const [lead, ...rest] = news;
   .hero__lede { margin-top: var(--space-6); max-width: 40ch; }
   .hero__actions { display: flex; gap: var(--space-3); margin-top: var(--space-8); flex-wrap: wrap; }
 
-  .news { display: grid; grid-template-columns: 1.25fr 1fr; gap: var(--space-5); margin-top: var(--space-6); }
+  .news { grid-template-columns: 1.25fr 1fr; margin-top: var(--space-6); }
   .news__lead { background: var(--cream); display: grid; align-content: space-between; gap: var(--space-8); min-height: 300px; }
-  .news__rest { display: grid; gap: var(--space-5); }
+  .news__rest { display: grid; }
   .news__rest .card { display: grid; align-content: space-between; gap: var(--space-5); }
   .news__meta { color: var(--ink-muted); }
-
-  .map__heading { max-width: 18ch; }
 
   .programs { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-12) var(--space-16); margin-top: var(--space-12); }
   .programs__item { display: grid; grid-template-columns: 56px 1fr; gap: var(--space-5); align-items: start; }
   .programs__title { font-size: var(--text-lg); line-height: var(--leading-lg); margin-bottom: var(--space-2); }
 
-  .objection { background: var(--cream); padding-block: var(--section-y); }
-  .objection__inner { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); align-items: start; }
+  /* Retint the hairline so the container rules carry across the
+     cream band. A rule that stops mid-page reads as a mistake. */
+  .objection { background: var(--cream); --border: var(--border-cream); }
+  .objection__inner { padding-block: var(--section-y); display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); align-items: start; }
   .objection__inner h2 { max-width: 16ch; }
   .objection__body > * + * { margin-top: var(--space-4); }
 

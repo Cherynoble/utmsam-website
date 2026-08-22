@@ -13,7 +13,9 @@
  *   - at least one shape derived from the logo module (the step)
  */
 
-/** '.' is transparent. 'a' is the hover-swappable accent cell. */
+/** '.' is transparent. 'a' is the hover-swappable accent cell.
+ *  'c' inherits the current text colour, so a glyph can sit inside a
+ *  button or link of any variant without a second bitmap. */
 export const PALETTE = {
   '1': 'var(--ink)',
   '2': 'var(--ramp-6)',
@@ -26,6 +28,7 @@ export const PALETTE = {
   '9': 'var(--white)',
   '0': 'var(--institution)',
   'a': 'var(--ramp-3)',
+  'c': 'currentColor',
 };
 
 const ACCENT_KEY = 'a';

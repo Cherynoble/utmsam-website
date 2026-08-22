@@ -1,0 +1,50 @@
+---
+/**
+ * The sub-page hero. Deliberately quieter than the homepage's: a marker,
+ * a heading, a lede, and no BlockField or viewport-height floor. Every
+ * page below the homepage opens identically, which is what makes the
+ * homepage's hero read as the exception rather than as inconsistency.
+ */
+const { marker, heading, lede, align = 'start' } = Astro.props;
+---
+<section class={`page-hero page-hero--${align}`}>
+  <div class="container page-hero__inner">
+    <div class="page-hero__title">
+      <p class="marker">{marker}</p>
+      <h1 class="page-hero__heading">{heading}</h1>
+    </div>
+    {lede && <p class="lede page-hero__lede">{lede}</p>}
+  </div>
+</section>
+
+<style>
+  /* Heading left, lede in the right rail. The heading alone left half
+     the hero empty on a wide screen; splitting it fills the row and
+     lands the lede on the same baseline as the headline's last line. */
+  .page-hero__inner {
+    padding-block: clamp(var(--space-8), 5vh, 72px) var(--space-12);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 40ch);
+    gap: var(--space-12);
+    align-items: end;
+  }
+  .page-hero__title { display: grid; gap: var(--space-5); }
+  .page-hero__heading { max-width: 20ch; }
+  .page-hero__lede { max-width: 40ch; }
+
+  /* Centred is for the editorial page type, where the measure is the
+     column rather than the screen. Mirrors how an article opens. */
+  .page-hero--center .page-hero__inner {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    align-items: start;
+  }
+  .page-hero--center .page-hero__title { justify-items: center; }
+  .page-hero--center .page-hero__heading { max-width: 24ch; }
+  .page-hero--center .page-hero__lede { max-width: 52ch; }
+
+  @media (max-width: 900px) {
+    .page-hero__inner { grid-template-columns: 1fr; gap: var(--space-5); align-items: start; }
+  }
+</style>

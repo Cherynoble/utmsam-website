@@ -1,0 +1,103 @@
+---
+/**
+ * The wall planner.
+ *
+ * Not the same page as /research on purpose. This one borrows the ruled
+ * cell architecture — every event is a cell in a grid, hairlines on the
+ * edges, no cards and no shadows — because a schedule is a table and
+ * should look like one. Terms are the columns, sticky at the top of the
+ * grid so the column you are reading is always labelled.
+ */
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Markitecture from '../components/Markitecture.astro';
+import FinalCta from '../components/FinalCta.astro';
+import { eventGroups, eventsPage } from '../data/content.js';
+
+const blocks = eventGroups.map(g => ({
+  href: `#${g.id}`, icon: g.icon, short: g.short, line: g.line,
+}));
+
+// Flatten to slots, then re-cut by term. The data is grouped by kind
+// because that is how the floorplan reads it; the planner needs the
+// other axis.
+const slots = eventGroups.flatMap(g => g.items.map(i => ({ ...i, kind: g.kind, group: g.id })));
+const terms = ['Fall', 'Winter'].map(term => ({
+  term,
+  slots: slots.filter(s => s.term === term),
+}));
+---
+<Base title="Events" progress description={eventsPage.lede}>
+  <PageHero marker="Events" heading={eventsPage.heading} lede={eventsPage.lede} />
+
+  <Markitecture heading="Three kinds of thing." blocks={blocks} />
+
+  <section class="section container">
+    <div class="planner">
+      {terms.map(({ term, slots }) => (
+        <div class="planner__col">
+          <div class="planner__head">
+            <span class="marker">{term}</span>
+            <span class="marker planner__count">{slots.length}</span>
+          </div>
+          {slots.map(s => (
+            <article class="slot tech-dot" id={s.id}>
+              <span class="chip">{s.kind}</span>
+              <h3 class="slot__name">{s.name}</h3>
+              <p class="body">{s.body}</p>
+              {s.note && <p class="mono slot__note">{s.note}</p>}
+            </article>
+          ))}
+        </div>
+      ))}
+    </div>
+    <p class="mono planner__footnote">{eventsPage.note}</p>
+  </section>
+
+  <FinalCta />
+</Base>
+
+<style>
+  /* Two ruled columns, one per term. Columns are unequal by nature —
+     more runs in Winter — and the dividing rule runs the full height
+     regardless, which is what makes it read as a planner rather than
+     as two lists that happen to sit side by side. */
+  .planner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1px solid var(--border);
+  }
+  .planner__col { display: grid; align-content: start; }
+  .planner__col + .planner__col { border-left: 1px solid var(--border); }
+
+  .planner__head {
+    position: sticky;
+    top: var(--nav-height);
+    z-index: 5;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: var(--space-3) var(--space-6);
+    background: var(--warm-ivory);
+    border-bottom: 1px solid var(--border);
+  }
+  .planner__count { color: var(--ramp-6); }
+
+  .slot {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    justify-items: start;
+    padding: var(--space-6);
+    border-bottom: 1px solid var(--border);
+  }
+  .slot__name { font-size: var(--text-lg); line-height: var(--leading-lg); }
+  .slot__note { color: var(--ink-muted); }
+
+  .planner__footnote { color: var(--ink-muted); margin-top: var(--space-6); }
+
+  @media (max-width: 900px) {
+    .planner { grid-template-columns: 1fr; }
+    .planner__col + .planner__col { border-left: 0; }
+  }
+</style>

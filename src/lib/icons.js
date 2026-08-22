@@ -2,41 +2,117 @@
  * The icon set.
  *
  * Naming encodes provenance. The `d-` prefix means "constructed from the
- * descent module", the two-cell-tall stepped tread that the logo is built
- * from. That shared module is the cohesion mechanism: it is what makes a
- * beaker feel like OUR beaker rather than a generic beaker.
+ * descent module", the two-cell-tall stepped tread. It is the cohesion
+ * mechanism: it is what makes a beaker feel like OUR beaker rather than a
+ * generic beaker. The emblem used to be built from the same tread; it is
+ * now the cube cluster, and the tread survives in the block faces.
  *
  * Palette keys: 1 ink · 2 ember · 3 flame · 4 orange · 5 amber · 6 gold
  *               7 yellow · 8 cream · 9 white · 0 institution · a accent-swap
  */
 
 /* ---- Tier 1: the emblem --------------------------------------------------
-   A point descending a stepped curve. The steps run the warm ramp from gold
-   at high loss to ember at the minimum; the ink block is the current
-   parameter, mid-descent. Gradient descent, drawn as a staircase.
+   The UTMSAM cube cluster, redrawn as a bitmap: three blocks stacked two
+   below and one above, each with a lit top face and two darker sides, cut
+   apart by an ink edge. The original is a 3D render with metallic
+   gradients; none of that survives a 16px grid, so the cluster is read
+   flat and the ramp does the dimensional work — lighter is nearer the
+   light, exactly as the block strip runs.
+
+   The stepped tread the d- icons are built from lives on in the block
+   faces, so the icon family keeps its provenance.
    The emblem is the one mark allowed the full ramp. */
 export const mark = [
-  '................',
-  '................',
-  '................',
-  '6666............',
-  '6666.11.........',
-  '..66.11.........',
-  '..555555........',
-  '..555555........',
-  '......55........',
-  '......333333....',
-  '......333333....',
-  '..........33....',
-  '..........222222',
-  '..........222222',
-  '................',
-  '................',
+  '...........77...........',
+  '.........777777.........',
+  '.......7777777777.......',
+  '.....77777777777777.....',
+  '...777777777777777777...',
+  '.7777777777777777777777.',
+  '477777777777777777777772',
+  '444777777777777777777222',
+  '444447777777777777722222',
+  '444444477777777772222222',
+  '444444444777777222222222',
+  '444444444447722222222222',
+  '444444444444222222222222',
+  '444444444444222222222222',
+  '444444444444222222222222',
+  '444444444444222222222222',
+  '444444444444222222222222',
+  '444444444444222222222222',
+  '.4444444444422222222222.',
+  '...444444444222222222...',
+  '.....44444442222222.....',
+  '.......4444422222.......',
+  '.........444222.........',
+  '...........42...........',
 ];
 
 /* ---- Tier 2: flat pixel icons ------------------------------------------ */
 
 export const icons = {
+  /* Chrome glyphs. One colour, key 'c', so they inherit whatever
+     they sit inside. The chevron is the descent step read sideways:
+     two-cell treads climbing to a point and back down. */
+  chevron: [
+    '................',
+    '................',
+    '................',
+    '.....cc.........',
+    '.....cc.........',
+    '.......cc.......',
+    '.......cc.......',
+    '.........cc.....',
+    '.........cc.....',
+    '.......cc.......',
+    '.......cc.......',
+    '.....cc.........',
+    '.....cc.........',
+    '................',
+    '................',
+    '................',
+  ],
+
+  menu: [
+    '................',
+    '................',
+    '................',
+    '..cccccccccccc..',
+    '..cccccccccccc..',
+    '................',
+    '................',
+    '..cccccccccccc..',
+    '..cccccccccccc..',
+    '................',
+    '................',
+    '..cccccccccccc..',
+    '..cccccccccccc..',
+    '................',
+    '................',
+    '................',
+  ],
+
+  /* A stepped X, not a rotated bar: the diagonal is made of treads. */
+  close: [
+    '................',
+    '................',
+    '...cc......cc...',
+    '...cc......cc...',
+    '.....cc..cc.....',
+    '.....cc..cc.....',
+    '.......cc.......',
+    '.......cc.......',
+    '.......cc.......',
+    '.......cc.......',
+    '.....cc..cc.....',
+    '.....cc..cc.....',
+    '...cc......cc...',
+    '...cc......cc...',
+    '................',
+    '................',
+  ],
+
   /* d- prefix: the descent module is the visible subject */
   'd-workshop': [
     '................',

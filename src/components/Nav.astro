@@ -1,5 +1,7 @@
 ---
 import Mark from './Mark.astro';
+import PixelIcon from './PixelIcon.astro';
+import Btn from './Btn.astro';
 import { nav, site } from '../data/site.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const path = Astro.url.pathname.replace(base, '').replace(/\/$/, '') || '/';
@@ -24,18 +26,23 @@ const path = Astro.url.pathname.replace(base, '').replace(/\/$/, '') || '/';
       </ul>
     </nav>
 
-    <a href={`${base}/join`} class="btn btn--primary site-nav__cta">Join UTMSAM</a>
+    <Btn href={site.signupUrl} class="site-nav__cta">Join UTMSAM</Btn>
 
     <button class="site-nav__toggle" aria-expanded="false" aria-controls="nav-drawer">
       <span class="visually-hidden">Menu</span>
-      <span class="site-nav__bars" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="site-nav__glyph site-nav__glyph--menu" aria-hidden="true">
+        <PixelIcon name="menu" size={32} decorative />
+      </span>
+      <span class="site-nav__glyph site-nav__glyph--close" aria-hidden="true">
+        <PixelIcon name="close" size={32} decorative />
+      </span>
     </button>
   </div>
 
   <div class="site-nav__drawer" id="nav-drawer" hidden>
     <ul>
       {nav.map(item => <li><a href={`${base}${item.href}`}>{item.label}</a></li>)}
-      <li><a href={`${base}/join`}>Join UTMSAM</a></li>
+      <li><a href={site.signupUrl}>Join UTMSAM</a></li>
     </ul>
   </div>
 </header>
@@ -62,9 +69,22 @@ const path = Astro.url.pathname.replace(base, '').replace(/\/$/, '') || '/';
   .site-nav__link:hover { border-bottom-color: var(--accent); }
   .site-nav__link[aria-current='page'] { border-bottom-color: var(--ink); }
 
-  .site-nav__toggle { display: none; background: none; border: 0; padding: var(--space-2); cursor: pointer; }
-  .site-nav__bars { display: grid; gap: 4px; }
-  .site-nav__bars i { display: block; width: 22px; height: 2px; background: var(--ink); }
+  /* One cell, two states. Both glyphs occupy the same 44px grid area and
+     the pair slides by exactly the cell height, clipped by overflow. A
+     swap would blink; this reads as one control changing its mind. */
+  .site-nav__toggle {
+    display: none; place-content: center;
+    width: 44px; height: 44px; padding: 0;
+    background: none; border: 0; cursor: pointer;
+    overflow: hidden; color: var(--ink);
+  }
+  .site-nav__glyph {
+    grid-area: 1 / 1;
+    transition: transform var(--motion-fast) var(--ease-standard);
+  }
+  .site-nav__glyph--close { transform: translateY(-44px); }
+  [aria-expanded='true'] .site-nav__glyph--menu  { transform: translateY(44px); }
+  [aria-expanded='true'] .site-nav__glyph--close { transform: translateY(0); }
 
   .site-nav__drawer { border-top: 1px solid var(--border); padding: var(--space-4) var(--gutter); }
   .site-nav__drawer ul { list-style: none; display: grid; gap: var(--space-1); }
@@ -72,7 +92,7 @@ const path = Astro.url.pathname.replace(base, '').replace(/\/$/, '') || '/';
 
   @media (max-width: 860px) {
     .site-nav__list, .site-nav__cta { display: none; }
-    .site-nav__toggle { display: block; }
+    .site-nav__toggle { display: grid; }
   }
   @media (min-width: 861px) {
     .site-nav__drawer { display: none; }

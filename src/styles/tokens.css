@@ -40,7 +40,8 @@
   --institution:  #002a5c;
 
   /* --- Borders ---------------------------------------------- */
-  --border:       #f0e8c8;   /* warm, barely there */
+  --border:       #f0e8c8;   /* warm, barely there, on ivory */
+  --border-cream: #ecdfae;   /* the same weight of line, on cream */
   --border-ink:   #1f1f1f;
 
   /* --- Type -------------------------------------------------- */
@@ -71,9 +72,9 @@
   --space-16: 64px;
 
   --section-y: 80px;
-  --container-max: 1280px;
+  --container-max: 1600px;   /* steps to 1760px above 1900px, see below */
   --gutter: 24px;
-  --nav-height: 68px;
+  --nav-height: 76px;   /* holds the 48px mark with room either side */
 
   /* --- Radius. Effectively zero. No pills, ever. ------------- */
   --radius-sm: 2px;
@@ -99,9 +100,18 @@
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
+/* The measure steps up once on a large display rather than going fluid.
+   Fluid would stretch the two-column units past the width at which the
+   vertical rules still read as structure; a single step uses the extra
+   room and stops. 1760 keeps ~80px of ground either side at 1920, so the
+   container's own rules stay visible as edges rather than running off. */
+@media (min-width: 1900px) {
+  :root { --container-max: 1760px; }
+}
+
 @media (max-width: 1024px) {
   :root { --section-y: 48px; --gutter: 16px; }
 }
 @media (max-width: 640px) {
-  :root { --section-y: 32px; --gutter: 12px; --nav-height: 60px; }
+  :root { --section-y: 32px; --gutter: 12px; --nav-height: 68px; }
 }

@@ -1,7 +1,8 @@
 ---
 import DescentMascot from './DescentMascot.astro';
+import Btn from './Btn.astro';
 import { site } from '../data/site.js';
-const { heading = 'Come to a build session.', body = 'No application, no prerequisites, no expectation that you already know any of this.' } = Astro.props;
+const { heading = 'Come to the next one.', body = 'No application, no prerequisites, no expectation that you already know any of this.' } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <section class="final">
@@ -10,8 +11,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       <h2>{heading}</h2>
       <p class="lede final__body">{body}</p>
       <div class="final__actions">
-        <a href={site.signupUrl} class="btn btn--primary">Join UTMSAM</a>
-        <a href={`${base}/events`} class="btn btn--cream">See what is running</a>
+        <Btn href={site.signupUrl}>Join UTMSAM</Btn>
+        <Btn href={`${base}/events`} variant="cream">See what is running</Btn>
       </div>
     </div>
     <DescentMascot />
@@ -19,8 +20,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 </section>
 
 <style>
-  .final { border-top: 1px solid var(--border); padding-block: var(--section-y); }
+  .final { border-top: 1px solid var(--border); }
   .final__inner {
+    padding-block: var(--section-y);
     display: flex; align-items: flex-end; justify-content: space-between;
     gap: var(--space-12); flex-wrap: wrap;
   }

@@ -1,0 +1,210 @@
+---
+/**
+ * The mosaic wall.
+ *
+ * The block portrait is an 8x8 grid of unequal cells; this is the same
+ * idea at page scale. Six columns, tiles of unequal span, and no two
+ * rows the same shape — a paragraph, a bare number, a statement on
+ * ember, the year as two strips, a way out. Five identical two-column
+ * prose slabs was the thing this replaces.
+ *
+ * The spans tile the grid exactly: 4+2 / 4+2 / 3+3 / 3+3 / 2+2+2 / 2+4.
+ * Change one span and the wall gets a hole, so change them in pairs.
+ */
+import Base from '../layouts/Base.astro';
+import FinalCta from '../components/FinalCta.astro';
+import Btn from '../components/Btn.astro';
+import { about, research, eventGroups, team } from '../data/content.js';
+import { site } from '../data/site.js';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+/* Counted off content.js, so a tile cannot claim a number the rest of
+   the site disagrees with. */
+const events = eventGroups.flatMap(g => g.items.map(i => ({ ...i, kind: g.kind })));
+const pad = n => String(n).padStart(2, '0');
+
+/* The two term strips. One bar per event, coloured by kind — the same
+   three-way split /events is organised by. */
+const FILL = { Competition: 'var(--ramp-6)', Talk: 'var(--ramp-4)', Workshop: 'var(--ramp-2)' };
+const terms = ['Fall', 'Winter'].map(term => ({
+  term,
+  items: events.filter(e => e.term === term),
+}));
+---
+<Base title="About" progress description={about.lede}>
+  <!-- No hero band. A heading floating above the wall left a full
+       section of empty ivory between them, and the tiles read as chips
+       scattered on it rather than as a wall. The heading is the first
+       cell instead, the wall runs edge to edge, and the gaps are gone:
+       one surface, starting at the nav. -->
+  <section class="wall-section">
+    <div class="wall">
+      <article class="tile tile--4x2 tile--head">
+        <p class="marker">About</p>
+        <h1 class="tile__heading">{about.heading}</h1>
+      </article>
+      <a class="tile tile--2 tile--n" style="--fill: var(--ramp-1)" href={`${base}/events`}>
+        <span class="tile__n">{pad(events.length)}</span>
+        <span class="mono tile__label">Initiatives, 2026&ndash;27 &rarr;</span>
+      </a>
+
+      <a class="tile tile--2 tile--n" style="--fill: var(--ramp-2)" href={`${base}/research#articles`}>
+        <span class="tile__n">{pad(research.codex.articles.length)}</span>
+        <span class="mono tile__label">Articles in CODEX vol. 1 &rarr;</span>
+      </a>
+
+      <article class="tile tile--4x2 tile--cream">
+        <p class="marker">{about.what.heading}</p>
+        <p class="tile__lead">{about.lede}</p>
+      </article>
+
+      <a class="tile tile--2 tile--n" style="--fill: var(--ramp-3)" href={`${base}/team`}>
+        <span class="tile__n">{pad(team.advisors.length)}</span>
+        <span class="mono tile__label">Faculty advisors &rarr;</span>
+      </a>
+
+      <a class="tile tile--2 tile--ink" href={`${base}/team`}>
+        <h2 class="tile__title">Who runs it.</h2>
+        <span class="path tile__path-on">/team &rarr;</span>
+      </a>
+
+      <article class="tile tile--3x2 tile--ember">
+        <h2 class="tile__claim">{about.audience.heading}</h2>
+        <div>
+          <p class="tile__prose">{about.audience.line}</p>
+          <Btn href={site.signupUrl} variant="cream" class="tile__btn">Join UTMSAM</Btn>
+        </div>
+      </article>
+
+      <a class="tile tile--3 tile--ruled" href={`${base}/events`}>
+        {terms.map(t => (
+          <div class="strip">
+            <p class="marker">{t.term} term</p>
+            <ul class="strip__bars">
+              {t.items.map(i => <li style={`background:${FILL[i.kind]}`} title={i.name}></li>)}
+            </ul>
+          </div>
+        ))}
+        <p class="mono tile__label">Competition, talk, workshop &rarr;</p>
+      </a>
+
+      <article class="tile tile--3 tile--flame">
+        <p class="marker tile__marker-on">{about.year.heading}</p>
+        <p class="tile__line">{about.year.line}</p>
+      </article>
+
+      <a class="tile tile--3x2 tile--cream" href={`${base}/research#codex`}>
+        <h2 class="tile__title">{about.output.heading}</h2>
+        <p class="tile__line">{about.output.line}</p>
+        <span class="path">/research#codex &rarr;</span>
+      </a>
+
+      <article class="tile tile--3x2 tile--ruled tile--end">
+        <p class="body">{about.running.line}</p>
+      </article>
+    </div>
+  </section>
+
+  <FinalCta />
+</Base>
+
+<style>
+  .wall {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    /* A floor, not a fixed height: a tile that needs more room takes it
+       and its row grows, rather than spilling its text over the tile
+       below. Spans still tile the grid exactly. */
+    grid-auto-rows: minmax(176px, auto);
+    /* No gap. The gap is what made the tiles read as loose chips; butted
+       together the colour edges do the dividing, exactly as they do in
+       the block field. */
+    gap: 0;
+  }
+  /* Full bleed: the container gutter would put an ivory margin back
+     around the wall, which is the same disconnect one step out. */
+  .wall-section { padding-block: 0; }
+  .tile {
+    padding: clamp(var(--space-5), 2vw, var(--space-8));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: space-between;
+    gap: var(--space-3);
+    min-width: 0;
+    transition: background-color var(--motion-base) var(--ease-standard);
+  }
+  /* Two children only, so space-between would push the marker and the
+     statement to opposite ends of a 380px tile. They belong together,
+     and the statement carries the tile at heading size. */
+  .tile--4x2 { grid-column: span 4; grid-row: span 2; align-content: start; gap: var(--space-6); }
+  .tile--4x2 .tile__lead {
+    font-size: clamp(1.5rem, 2.4vw, var(--text-xl));
+    line-height: var(--leading-xl);
+    max-width: 34ch;
+  }
+  .tile--3x2 { grid-column: span 3; grid-row: span 2; }
+  .tile--2x2 { grid-column: span 2; grid-row: span 2; }
+  .tile--4   { grid-column: span 4; }
+  .tile--3   { grid-column: span 3; }
+  .tile--2   { grid-column: span 2; }
+
+  /* The heading is a tile like any other, so it gets the wall's surface
+     rather than the page's. */
+  .tile--head { background: var(--warm-ivory); align-content: center; gap: var(--space-5); }
+  .tile__heading {
+    font-size: clamp(2rem, 5vw, var(--text-4xl));
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-display);
+    max-width: 14ch;
+  }
+
+  /* Surfaces. Hover traverses the ramp, never lighten(). */
+  .tile--cream { background: var(--cream); }
+  a.tile--cream:hover, a.tile--cream:focus-visible { background: var(--ramp-1); }
+  .tile--ruled { background: var(--warm-ivory); box-shadow: var(--elev-ring); }
+  a.tile--ruled:hover, a.tile--ruled:focus-visible { background: var(--cream); }
+  .tile--ember { background: var(--accent); color: var(--accent-on); }
+  .tile--flame { background: var(--ramp-5); color: var(--accent-on); }
+  .tile--ink { background: var(--ink); color: var(--warm-ivory); }
+  a.tile--ink:hover, a.tile--ink:focus-visible { background: var(--accent-active); }
+  .tile--n { background: var(--fill); align-content: space-between; }
+  a.tile--n:hover, a.tile--n:focus-visible { background: var(--ramp-4); }
+
+  .tile__lead { font-size: var(--text-lg); line-height: var(--leading-lg); max-width: 46ch; }
+  .tile__prose { font-size: var(--text-sm); line-height: var(--leading-body); max-width: 52ch; }
+  .tile__line { font-size: var(--text-base); line-height: var(--leading-body); }
+  .tile__claim { font-size: clamp(1.5rem, 2.6vw, var(--text-xl)); line-height: var(--leading-xl); max-width: 16ch; }
+  .tile__title { font-size: var(--text-lg); line-height: var(--leading-lg); }
+  .tile__n {
+    font-size: var(--text-2xl);
+    line-height: var(--leading-2xl);
+    letter-spacing: var(--tracking-display);
+    font-variant-numeric: tabular-nums;
+  }
+  .tile__label { color: var(--ink-muted); }
+  .tile--n .tile__label { color: var(--ink); }
+  .tile__marker-on, .tile--ember .marker { color: var(--accent-on); opacity: 0.85; }
+  .tile__path-on { color: var(--warm-ivory); opacity: 0.75; }
+  .tile__btn { justify-self: start; margin-top: var(--space-4); }
+  .tile--end { align-content: center; }
+
+  /* One bar per event. The bars are the only place on the page where
+     the ramp carries a category rather than a surface, so the caption
+     under them says which. */
+  .strip { display: grid; gap: var(--space-2); }
+  .strip__bars { list-style: none; display: flex; gap: 2px; }
+  .strip__bars > li { flex: 1; height: 12px; }
+
+  @media (max-width: 1100px) {
+    .wall { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: minmax(160px, auto); }
+    .tile--4x2, .tile--4 { grid-column: span 4; }
+    .tile--3x2, .tile--3 { grid-column: span 2; }
+    .tile--3x2 { grid-row: span 2; }
+  }
+  @media (max-width: 700px) {
+    .wall { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; }
+    .tile { grid-column: span 2 !important; grid-row: auto !important; gap: var(--space-4); }
+    .tile__claim { max-width: none; }
+  }
+</style>

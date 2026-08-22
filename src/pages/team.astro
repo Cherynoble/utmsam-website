@@ -1,0 +1,157 @@
+---
+/**
+ * The roster, as one ruled sheet.
+ *
+ * Faculty open the page on their own cream band, in the institutional
+ * colour reserved for them, and the executive follows as the grid.
+ *
+ * Portraits are one size everywhere — 168px, the advisors' size — so the
+ * placeholder mosaic reads as a mark against a name rather than as wall
+ * art. A full-cell mosaic at 380px is the loudest thing on the page and
+ * it is standing in for a photo nobody has taken yet.
+ *
+ * Seven people plus the "join the exec" cell fill a 4x2 grid exactly,
+ * which is why the CTA is a cell and not a button under the section.
+ */
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import FinalCta from '../components/FinalCta.astro';
+import BlockPortrait from '../components/BlockPortrait.astro';
+import PixelIcon from '../components/PixelIcon.astro';
+import { team } from '../data/content.js';
+import { site } from '../data/site.js';
+---
+<Base title="Team" progress description={team.lede}>
+  <PageHero marker="Team" heading={team.heading} lede={team.lede} />
+
+  <!-- Faculty, on cream, in the institutional blue that is reserved for
+       exactly this. Two people get two wide cells, not two of the same
+       cells the exec sits in. -->
+  <section class="advisors">
+    <div class="container advisors__inner">
+      <div class="head">
+        <h2 class="marker">Faculty advisors</h2>
+        <p class="mono head__meta">{String(team.advisors.length).padStart(2, '0')} — UTM</p>
+      </div>
+      <ul class="advisors__list">
+        {team.advisors.map(p => (
+          <li class="advisor">
+            <div class="advisor__portrait"><BlockPortrait seed={p.name} /></div>
+            <div class="advisor__text">
+              <h3 class="advisor__name">{p.name}</h3>
+              <p class="mono advisor__role">{p.role}</p>
+              {p.note && <p class="body advisor__note">{p.note}</p>}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section container">
+    <div class="head">
+      <h2 class="marker">Executive</h2>
+      <p class="mono head__meta">{String(team.exec.length).padStart(2, '0')} — 2026&ndash;27</p>
+    </div>
+
+    <ul class="roster">
+      {team.exec.map((p, i) => (
+        <li class="person">
+          <div class="person__portrait"><BlockPortrait seed={p.name} /></div>
+          <div class="person__plate">
+            <span class="mono person__idx">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="person__name">{p.name}</h3>
+            <p class="mono person__role">{p.role}</p>
+          </div>
+        </li>
+      ))}
+
+      <li class="person person--cta">
+        <a class="cta" href={site.signupUrl}>
+          <PixelIcon name="people" size={40} decorative />
+          <span class="cta__title">Your seat.</span>
+          <span class="cta__line">The executive turns over every spring. Join the society and you are eligible to run.</span>
+          <span class="mono cta__go">Join UTMSAM &rarr;</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <FinalCta />
+</Base>
+
+<style>
+  .head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
+  .head__meta { color: var(--ink-muted); }
+
+  /* One sheet: 1px gaps expose the grid background, so every dividing
+     line is drawn once. Same device as .card-grid, without the padding
+     that would keep the portrait off the cell edge. */
+  .roster {
+    list-style: none;
+    margin-top: var(--space-6);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--border);
+  }
+  .person {
+    background: var(--warm-ivory);
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+    padding: var(--space-5);
+  }
+  /* Capped, not full-bleed: same 168px the advisors get. */
+  .person__portrait { width: 100%; max-width: 168px; }
+  .person__plate { display: grid; gap: var(--space-1); }
+  .person__idx { color: var(--ink-muted); font-size: var(--text-xs); letter-spacing: 0.08em; }
+  .person__name { font-size: var(--text-lg); line-height: var(--leading-lg); }
+  .person__role { color: var(--ink-muted); }
+
+  /* The eighth cell. Ember, so it closes the grid the way the last
+     floorplan block closes that one. */
+  .person--cta { background: var(--accent); }
+  .cta {
+    display: grid;
+    align-content: space-between;
+    gap: var(--space-3);
+    height: 100%;
+    padding: var(--space-5);
+    color: var(--accent-on);
+    transition: background-color var(--motion-base) var(--ease-standard);
+  }
+  .cta:hover, .cta:focus-visible { background: var(--accent-active); }
+  .cta__title { font-size: var(--text-lg); line-height: var(--leading-lg); }
+  .cta__line { font-size: var(--text-sm); }
+  .cta__go { margin-top: auto; padding-top: var(--space-4); }
+
+  .advisors { background: var(--cream); --border: var(--border-cream); }
+  .advisors__inner { padding-block: var(--section-y); }
+  .advisors__list {
+    list-style: none;
+    margin-top: var(--space-6);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-8) var(--space-16);
+  }
+  .advisor { display: grid; grid-template-columns: minmax(0, 168px) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+  /* Same size and same treatment as an exec portrait: one placeholder,
+     one look, so the two sections read as one roster. */
+  .advisor__portrait { width: 100%; max-width: 168px; }
+  .advisor__name { font-size: var(--text-xl); line-height: var(--leading-xl); }
+  /* Institutional blue, on faculty, and nowhere else. */
+  .advisor__role { color: var(--institution); margin-top: var(--space-2); }
+  .advisor__note { margin-top: var(--space-3); }
+
+  @media (max-width: 1100px) {
+    .roster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 900px) {
+    .advisors__list { grid-template-columns: 1fr; gap: var(--space-8); }
+  }
+  @media (max-width: 700px) {
+    .roster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .advisor { grid-template-columns: 120px minmax(0, 1fr); gap: var(--space-4); }
+  }
+</style>
