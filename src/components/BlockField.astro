@@ -1,15 +1,19 @@
 ---
 import { buildField } from '../lib/field.js';
-import { toRects, PALETTE } from '../lib/pixel.js';
+import { PALETTE } from '../lib/pixel.js';
 
-const { w = 26, h = 15, seed = 9091, caption = 'A loss surface. The dark path steps downhill to the minimum.' } = Astro.props;
-const { cells, path } = buildField(w, h, seed);
-const onPath = new Set(path.map(([x, y]) => `${x},${y}`));
+const {
+  w = 26,
+  h = 15,
+  seed = 9091,
+  caption = 'A loss surface. The dark path steps downhill to the minimum.',
+  drift = true,
+  takeover = true,
+} = Astro.props;
 
-// Composite the surface and the path into a single bitmap, then run-merge it
-// once. Emitting one rect per cell plus a second pass for the path costs
-// roughly 500 elements; merged, it is a fraction of that and the markup is
-// small enough to inline without thinking about it.
+const { cells, path, heights } = buildField(w, h, seed);
+
+// Composite the surface and the path into a single bitmap.
 const grid = cells.map(row => [...row]);
 for (const [x, y] of path) grid[y][x] = '1';
 
@@ -21,33 +25,305 @@ for (let y = ey; y <= ey + 1; y++) {
   for (let x = ex; x <= ex + 1; x++) grid[y][x] = '1';
 }
 
-const rects = toRects(grid.map(r => r.join('')));
+/* Cells are emitted one rect each rather than run-merged.
+   Run-merging was worth roughly 4x the element count, and it is what the
+   static field wanted — but everything this field now does is per-cell:
+   the drift moves a cell at a time, the walk repaints individual cells as
+   the path crosses them, and the dissolve needs to know which chunk a cell
+   belongs to. A run straddling a chunk boundary belongs to neither.
+
+   The path is still baked into the bitmap below, and every cell still
+   ships its band colour. That is the picture a reader gets with the script
+   blocked or motion turned down: the original still frame, correct, with
+   the walk already at its minimum. `data-e` is what lets the client take
+   over and re-walk it. */
+
+/* The dissolve is chunked, not per-cell: the ask is big pieces leaving,
+   and 390 cells going out one at a time is a fade, not a demolition.
+   5x4 cells per chunk gives 24 pieces on the default grid. */
+const CW = 5;
+const CH = 4;
+const cols = Math.ceil(w / CW);
+const rows = Math.ceil(h / CH);
+
+const midX = (w - 1) / 2;
+const midY = (h - 1) / 2;
+
+const chunks = [];
+for (let cy = 0; cy < rows; cy++) {
+  for (let cx = 0; cx < cols; cx++) {
+    const x0 = cx * CW;
+    const y0 = cy * CH;
+    const x1 = Math.min(w, x0 + CW);
+    const y1 = Math.min(h, y0 + CH);
+
+    const items = [];
+    for (let y = y0; y < y1; y++) {
+      for (let x = x0; x < x1; x++) {
+        items.push({ x, y, ch: grid[y][x], e: heights[y][x] });
+      }
+    }
+
+    // Distance of the chunk's centre from the field's, in cell units. The
+    // cells are square at the authored aspect, so this is the distance you
+    // actually see. Ordering the dissolve by it empties the middle first.
+    const d = Math.hypot((x0 + x1 - 1) / 2 - midX, (y0 + y1 - 1) / 2 - midY);
+
+    // A deterministic nudge off the true radius. Without it the chunks
+    // leave as a clean expanding ring, which reads as a wipe rather than
+    // as the thing coming apart. Index-derived, so it is stable per build.
+    const jitter = (((cx * 7 + cy * 13) % 5) / 5) * 0.09;
+
+    chunks.push({ items, d, jitter });
+  }
+}
+
+const maxD = Math.max(...chunks.map(c => c.d)) || 1;
+for (const c of chunks) c.t = Math.min(1, c.d / maxD + c.jitter);
 ---
-<figure class="field tech-dot tech-dot--tr">
-  <svg
-    viewBox={`0 0 ${w} ${h}`}
-    shape-rendering="crispEdges"
-    role="img"
-    aria-labelledby="field-caption"
-    preserveAspectRatio="none"
-  >
-    {rects.map(r => (
-      <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={PALETTE[r.ch]} />
-    ))}
-  </svg>
+<figure class={`field tech-dot tech-dot--tr${takeover ? ' field--takeover' : ''}`} data-field>
+  <div class="field__slot" data-field-slot>
+    <svg
+      class="field__plate"
+      data-field-plate
+      data-drift={drift ? '' : undefined}
+      data-walk={drift ? '' : undefined}
+      data-cols={w}
+      data-rows={h}
+      viewBox={`0 0 ${w} ${h}`}
+      shape-rendering="crispEdges"
+      role="img"
+      aria-labelledby="field-caption"
+      preserveAspectRatio="none"
+    >
+      {chunks.map(c => (
+        <g class="field__chunk" style={`--t:${c.t.toFixed(3)}`}>
+          {c.items.map(({ x, y, ch, e }) => (
+            <rect
+              x={x} y={y} width="1" height="1"
+              fill={PALETTE[ch]}
+              {...(drift ? { 'data-e': e.toFixed(2) } : {})}
+            />
+          ))}
+        </g>
+      ))}
+    </svg>
+  </div>
   <figcaption id="field-caption" class="mono field__caption">
     {caption}
   </figcaption>
 </figure>
 
 <style>
-  /* The dot sits on the top-right corner of the plate, which is the
-     first grid row, so the figure itself is the right anchor. */
-  .field { display: grid; gap: var(--space-3); }
-  .field svg {
-    width: 100%;
-    aspect-ratio: 26 / 15;
-    box-shadow: var(--elev-raised);
+  .field { display: grid; gap: var(--space-3); --p1: 0; --p2: 0; }
+
+  /* The slot holds the layout box and is never transformed, so it stays
+     the honest thing to measure the takeover against. The plate is
+     absolutely positioned inside it and does all the moving. */
+  .field__slot { position: relative; aspect-ratio: 26 / 15; }
+  .field__plate {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
   }
-  .field__caption { color: var(--ink-muted); }
+  /* Lifted out of the slot for the takeover. The plate's own box is set to
+     where it should paint, rather than the box staying in the slot and a
+     transform throwing it across the screen: a small element scaled up two
+     and a half times, with its layout box scrolled off the top of the page,
+     is a composited layer the browser is entitled to skip rasterising — and
+     it does, leaving a viewport-sized hole with nothing drawn in it.
+     preserveAspectRatio="none" means resizing the box is exact anyway. */
+  .field__plate--lifted { position: fixed; inset: auto; }
+
+  /* The raised shadow belongs to the slot, not the plate: on the plate it
+     would scale to the size of the room along with everything else. Here
+     it stays put and fades as the plate leaves. */
+  .field__slot::before {
+    content: '';
+    position: absolute; inset: 0; z-index: 0;
+    box-shadow: var(--elev-raised);
+    opacity: calc(1 - min(1, var(--p1) * 2.5));
+  }
+
+  .field__caption {
+    color: var(--ink-muted);
+    opacity: calc(1 - min(1, var(--p1) * 2.5));
+  }
+  /* The corner dot marks the plate's corner. Once the plate is off filling
+     the screen there is no corner for it to mark. */
+  .field.tech-dot::after { opacity: calc(1 - min(1, var(--p1) * 2.5)); }
+
+  /* The dissolve. Each chunk carries the point in --p2 at which it goes;
+     multiplying the difference turns the crossing into a switch rather
+     than a fade, so a chunk leaves whole. Same instinct as the steps(1)
+     on the icon hovers — the discreteness is the point. */
+  .field__chunk { opacity: clamp(0, (var(--t) - var(--p2)) * 22, 1); }
+
+  /* The takeover paints over the sections scrolling up underneath it, but
+     stays below the nav at 40 — a full-screen cover you cannot navigate
+     out of is a trap, not an effect. */
+  .field--takeover { position: relative; z-index: 30; pointer-events: none; }
+
+  /* Nothing above is load-bearing: with the script off, --p1 and --p2 stay
+     at 0, every chunk is opaque, and the plate sits in its slot. */
 </style>
+
+<script>
+  import { startDrift } from '../lib/drift.js';
+  startDrift();
+
+  /* The takeover.
+   *
+   * Two phases, both measured against a stage element rather than against
+   * raw scroll position, because the stage is what makes the page hold
+   * still. The stage is the hero grown a runway taller than the screen,
+   * with the hero's own content sticky inside it: scrolling through the
+   * runway moves the scrollbar but not the page, which is the freeze —
+   * done with sticky rather than by blocking the scroll, so the wheel,
+   * the trackpad, the scrollbar, Page Down and find-in-page all still
+   * behave and nothing has to be given back afterwards.
+   *
+   *   phase A, y in [0, pin]   the plate dilates out to fill the screen,
+   *                            with the page held still behind it
+   *   phase B, y in [pin, H]   the plate comes apart in chunks. The page
+   *                            is moving again here, but it is moving
+   *                            behind an opaque full-screen cover, and
+   *                            the arithmetic below lands y = H exactly
+   *                            as the section after the stage reaches the
+   *                            top of the screen. So the reader is not
+   *                            skipping that screenful of page — it is
+   *                            being dealt to them face down, and the
+   *                            dissolve turns it over.
+   *
+   * Phase A is itself two moves, and the split is what keeps the cells
+   * square. The plate slides to the middle of the screen at the size it
+   * already is, and only then scales up about that centre. Because the
+   * scale is one number rather than one per axis, and the slot is cut to
+   * the grid's own 26:15, a cell is square at rest and stays square all
+   * the way out.
+   *
+   * ponytail: the two earlier versions both got this wrong, in the same
+   * way. Interpolating the box corner-to-corner, and dilating every edge
+   * outward at one rate, both re-shape the rectangle while it travels —
+   * and preserveAspectRatio="none" means the grid obediently stretches to
+   * whatever shape the box is passing through. Square cells are the whole
+   * material. Move the box, or resize it, but do not do both at once.
+   */
+  const field = document.querySelector('[data-field]');
+  const slot = document.querySelector('[data-field-slot]');
+  const plate = document.querySelector('[data-field-plate]');
+  const stage = document.querySelector('[data-takeover-stage]');
+
+  /* Below the hero's own stacking breakpoint the layout is one column and
+     the hero is already taller than the screen, so there is nothing to pin
+     it to and no room to grow into. The phone gets the still field. */
+  const wide = matchMedia('(min-width: 900px)');
+  const still = matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (field?.classList.contains('field--takeover') && slot && plate && stage) {
+    const clamp01 = n => (n < 0 ? 0 : n > 1 ? 1 : n);
+
+    // How much of phase A is the slide. The rest is the scale-up, which
+    // needs the larger share: crossing the screen is one gesture, and
+    // filling it from the middle is the one the reader is waiting on.
+    const SLIDE = 0.35;
+    const ease = t => 1 - (1 - t) ** 3;
+
+    let on = false;
+    let queued = false;
+
+    function reset() {
+      stage.classList.remove('is-staged');
+      field.style.removeProperty('--p1');
+      field.style.removeProperty('--p2');
+      field.style.visibility = '';
+      plate.classList.remove('field__plate--lifted');
+      plate.style.left = plate.style.top = plate.style.width = plate.style.height = '';
+    }
+
+    function sync() {
+      const want = wide.matches && !still.matches;
+      if (want === on) return;
+      on = want;
+      if (on) stage.classList.add('is-staged');
+      else reset();
+    }
+
+    function frame() {
+      queued = false;
+      if (!on) return;
+
+      /* Live, not cached. The plate has to land on the screen exactly, and
+         a height that is stale by even a little leaves a strip of page
+         showing along the bottom. It also cannot be measured once at
+         startup: a pane that is not laid out yet reports 0, and a cached 0
+         divides zero by zero and pins --p1 to NaN for the life of the
+         page. */
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      if (vh <= 0) return;
+
+      const H = stage.offsetHeight;
+      const pin = H - vh;               // the runway the sticky hero holds for
+      if (pin <= 0) return;
+
+      const y = window.scrollY - (stage.getBoundingClientRect().top + window.scrollY);
+      const p1 = clamp01(y / pin);
+      const p2 = clamp01((y - pin) / (H - pin));
+
+      field.style.setProperty('--p1', String(p1));
+      field.style.setProperty('--p2', String(p2));
+
+      if (p1 === 0) {
+        plate.classList.remove('field__plate--lifted');
+        plate.style.left = plate.style.top = plate.style.width = plate.style.height = '';
+      } else {
+        // The slot never moves and is never transformed, so at p1 just off
+        // zero the lifted box lands exactly on it and the lift is invisible.
+        const r = slot.getBoundingClientRect();
+
+        // Slide, then scale. Never both at once.
+        const slide = ease(clamp01(p1 / SLIDE));
+        const grow = clamp01((p1 - SLIDE) / (1 - SLIDE));
+
+        // Centre travels from where the plate sits to the middle of the
+        // screen. Eased, so it settles into the middle rather than
+        // arriving at full speed and stopping dead against the scroll.
+        const cx = (r.left + r.width / 2) + (vw / 2 - (r.left + r.width / 2)) * slide;
+        const cy = (r.top + r.height / 2) + (vh / 2 - (r.top + r.height / 2)) * slide;
+
+        // Cover, not contain: the grid's 26:15 is not the screen's, and
+        // the only two ways to settle that are to stretch the cells or to
+        // let a little of the field off the edge. The field is a surface
+        // here, and it is about to come apart anyway, so it bleeds.
+        const cover = Math.max(vw / r.width, vh / r.height);
+        const scale = 1 + (cover - 1) * grow;
+        const width = r.width * scale;
+        const height = r.height * scale;
+
+        plate.classList.add('field__plate--lifted');
+        plate.style.left = `${cx - width / 2}px`;
+        plate.style.top = `${cy - height / 2}px`;
+        plate.style.width = `${width}px`;
+        plate.style.height = `${height}px`;
+      }
+
+      // Fully dissolved: stop painting a screen-sized invisible SVG over
+      // the page, and let the sections underneath have the compositor back.
+      field.style.visibility = p2 >= 1 ? 'hidden' : '';
+    }
+
+    function onScroll() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(frame);
+    }
+
+    sync();
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', () => { sync(); onScroll(); });
+    wide.addEventListener('change', () => { sync(); onScroll(); });
+    still.addEventListener('change', () => { sync(); onScroll(); });
+    frame();
+  }
+</script>

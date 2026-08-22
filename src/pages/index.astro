@@ -14,7 +14,7 @@ const [lead, ...rest] = news;
 ---
 <Base progress>
   <!-- Claim -->
-  <section class="hero">
+  <section class="hero" data-takeover-stage>
     <div class="container hero__inner">
       <div class="hero__text">
         <h1>
@@ -128,6 +128,22 @@ const [lead, ...rest] = news;
      a short window or a long headline grows the section instead of
      clipping it. Below the stacking breakpoint the content is always
      taller than the screen anyway, and the floor stops applying. */
+  /* The stage. `is-staged` is set by the takeover script and only when
+     the takeover is actually going to run, so a phone, a reader with
+     motion turned down, and a page with the script blocked all get the
+     hero at its natural height rather than a screen of empty runway
+     underneath it. The runway is below the fold either way, so switching
+     it on after load shifts nothing anyone can see.
+
+     80dvh of runway puts the pin — the stretch where the scrollbar moves
+     and the page does not — at 80dvh minus the nav, and leaves the
+     dissolve exactly one screen long, ending as the block strip below
+     reaches the top. Lengthen the runway to hold the freeze longer; the
+     dissolve stays one screen whatever it is set to. */
+  .hero { --takeover-runway: 80dvh; }
+  .hero.is-staged { height: calc(100dvh - var(--nav-height) + var(--takeover-runway)); }
+  .hero.is-staged .hero__inner { position: sticky; top: var(--nav-height); }
+
   .hero__inner {
     min-height: calc(100dvh - var(--nav-height));
     padding-block: clamp(var(--space-8), 6vh, 88px) var(--section-y);
