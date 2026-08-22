@@ -10,7 +10,7 @@
 import HeroField from './HeroField.astro';
 import BlockStrip from './BlockStrip.astro';
 
-const { marker, heading, headingLines, lede, seed = 90125 } = Astro.props;
+const { marker, heading, headingLines, lede, seed = 90125, animate = false } = Astro.props;
 const lines = headingLines ?? [heading];
 ---
 <section class="banner">
@@ -18,8 +18,8 @@ const lines = headingLines ?? [heading];
        band, so a landscape grid squeezed into a phone viewport turns
        every block into a sliver; the portrait grid is the same
        generator at the aspect it is going to be shown at. -->
-  <HeroField class="hero-field--wide" seed={seed} />
-  <HeroField class="hero-field--tall" seed={seed} w={15} h={24} text={[0.95, 0.3, 0.78]} />
+  <HeroField class="hero-field--wide" seed={seed} animate={animate} />
+  <HeroField class="hero-field--tall" seed={seed} w={15} h={24} text={[0.95, 0.3, 0.78]} animate={animate} />
   <div class="container banner__inner">
     <div class="banner__text">
       <p class="marker">{marker}</p>

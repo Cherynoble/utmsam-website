@@ -8,18 +8,28 @@
 import { buildNoiseField } from '../lib/field.js';
 import { PALETTE } from '../lib/pixel.js';
 
-const { seed = 90125, w = 33, h = 14, text, class: klass = '' } = Astro.props;
+const { seed = 90125, w = 33, h = 14, text, animate = false, class: klass = '' } = Astro.props;
 const { cells } = buildNoiseField(w, h, seed, 0.38, text);
+
+// `animate` turns on the drift: the field never arrives, it just moves.
+// Cells carry their ramp step as data-n (1 = bright yellow, 6 = ember)
+// and the script below walks them a step either side of it.
 ---
 <svg
   class={`hero-field ${klass}`.trim()}
+  data-drift={animate ? '' : undefined}
   viewBox={`0 0 ${w} ${h}`}
   shape-rendering="crispEdges"
   preserveAspectRatio="none"
   aria-hidden="true"
 >
   {cells.map((row, y) => row.map((ch, x) => (
-    <rect x={x} y={y} width="1" height="1" fill={PALETTE[ch]} vector-effect="non-scaling-stroke" />
+    <rect
+      x={x} y={y} width="1" height="1"
+      fill={PALETTE[ch]}
+      data-n={animate ? 8 - Number(ch) : undefined}
+      vector-effect="non-scaling-stroke"
+    />
   )))}
 </svg>
 
@@ -29,4 +39,68 @@ const { cells } = buildNoiseField(w, h, seed, 0.38, text);
      their own rules. Non-scaling so the line stays 1px however far the
      cells stretch. */
   .hero-field rect { stroke: rgba(31, 31, 31, 0.14); stroke-width: 1; }
+
 </style>
+
+<script>
+  /* Drift.
+   *
+   * Three slow sine waves summed per cell, rounded to a ramp step. The
+   * periods are long and mutually prime enough that the field never
+   * visibly repeats, and no cell moves more than a step from where it
+   * was built, so the composition is the same one at every moment — it
+   * is a surface breathing, not a load-in.
+   *
+   * ponytail: 8fps, not rAF-per-frame. The output is six discrete
+   * colours; anything faster is computing fills nobody can see. Paused
+   * off-screen and in background tabs, and never started under reduced
+   * motion — the fill attribute is already the resting field.
+   */
+  const RAMP = ['', 'var(--ramp-1)', 'var(--ramp-2)', 'var(--ramp-3)', 'var(--ramp-4)', 'var(--ramp-5)', 'var(--ramp-6)'];
+  const FRAME = 125;
+
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const cells = [...document.querySelectorAll('svg[data-drift] rect')].map(el => ({
+      el,
+      x: +el.getAttribute('x'),
+      y: +el.getAttribute('y'),
+      n: +el.dataset.n,
+      at: +el.dataset.n,
+    }));
+
+    // A set, not a flag: the two fields are one per orientation, so the
+    // hidden one reports "not intersecting" and would otherwise switch the
+    // visible one off.
+    const onScreen = new Set();
+    const io = new IntersectionObserver(es => {
+      for (const e of es) e.isIntersecting ? onScreen.add(e.target) : onScreen.delete(e.target);
+      if (onScreen.size) tick();
+    });
+    document.querySelectorAll('svg[data-drift]').forEach(f => io.observe(f));
+
+    let last = 0;
+    function tick(now = 0) {
+      if (!onScreen.size || document.hidden) return;
+      if (now - last >= FRAME) {
+        last = now;
+        for (const c of cells) {
+          const wave =
+            Math.sin(c.x * 0.5 + now / 4500) +
+            Math.sin(c.y * 0.7 - now / 6500) +
+            Math.sin((c.x + c.y) * 0.3 + now / 3500);
+          // Dark cells never brighten past ramp-5. The generator floors the
+          // block under the headline at the dark end of the ramp for
+          // contrast, and drifting it up the ramp would undo that.
+          const floor = c.n >= 5 ? 5 : 1;
+          const v = Math.max(floor, Math.min(6, Math.round(c.n + wave * 0.55)));
+          if (v !== c.at) {
+            c.at = v;
+            c.el.setAttribute('fill', RAMP[v]);
+          }
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
+  }
+</script>
